@@ -126,25 +126,25 @@ export default function App() {
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 flex flex-col h-screen overflow-y-auto p-4 md:p-6 z-10 scroll-smooth pb-28 md:pb-6 relative">
         
-        {/* TOP HEADER (SIH Mandatory) */}
+        {/* TOP HEADER */}
         <header className="glass-panel rounded-3xl p-4 md:px-8 flex justify-between items-center mb-6 shadow-lg">
-          <div className="flex items-center gap-4">
-            {/* Mobile Title */}
-            <div className="md:hidden flex items-center gap-2 font-bold text-gray-900">
-               <Heart className="text-teal-600 w-5 h-5" />
-               VHH
-            </div>
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-4">
+              {/* Mobile Title */}
+              <div className="md:hidden flex items-center gap-2 font-bold text-gray-900">
+                 <Heart className="text-teal-600 w-5 h-5" />
+                 VHH
+              </div>
 
-            {/* Offline Toggle */}
-            <button 
-              onClick={() => setIsOnline(!isOnline)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs md:text-sm transition-all border ${
-                isOnline ? 'bg-green-500/20 text-green-800 border-green-500/30' : 'bg-red-500/20 text-red-800 border-red-500/30'
-              }`}
-            >
-              {isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
-              <span className="hidden sm:inline">{isOnline ? 'Online Synced' : 'Offline Mode'}</span>
-            </button>
+              {/* Dynamic Connection Indicator */}
+              <div className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs md:text-sm border ${
+                  isOnline ? 'bg-green-500/20 text-green-800 border-green-500/30' : 'bg-red-500/20 text-red-800 border-red-500/30'
+                }`}
+              >
+                {isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
+                <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
+              </div>
+            </div>
 
             {/* Language Switcher */}
             <div className="flex items-center gap-1 bg-white/30 p-1 rounded-full border border-white/40">
@@ -162,27 +162,19 @@ export default function App() {
               <Languages className="w-4 h-4 text-gray-500 ml-1 mr-2 hidden sm:block" />
             </div>
           </div>
-          
-          <div className="text-right">
-             <span className="inline-block px-3 py-1 bg-white/40 border border-white/50 rounded-lg text-xs font-bold text-gray-700 backdrop-blur-md">
-               SIH Prototype • Team 11
-             </span>
-          </div>
         </header>
 
         {/* HERO SECTION: PATIENT LOOKUP */}
-        <section className="glass-panel rounded-3xl p-8 md:p-12 mb-6 flex flex-col items-center justify-center text-center shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
-          
-          <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight relative z-10">
+        <section className="glass-panel rounded-3xl p-6 md:p-10 mb-6 flex flex-col items-center justify-center text-center shadow-xl">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3 tracking-tight">
             Who are we treating today?
           </h2>
-          <p className="text-gray-600 mb-8 max-w-lg relative z-10 font-medium">
+          <p className="text-gray-600 mb-6 max-w-lg font-medium">
             Search existing patients via Registration ID / ABHA ID to view records, or add a new patient instantly.
           </p>
           
-          <div className="w-full max-w-2xl relative z-10 flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 bg-white/60 backdrop-blur-xl border border-white rounded-2xl flex items-center p-2 shadow-inner">
+          <div className="w-full max-w-2xl flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 bg-white/60 backdrop-blur-xl border border-white/50 rounded-2xl flex items-center p-2 shadow-inner">
               <Search className="w-6 h-6 text-teal-600 ml-3 mr-2" />
               <input 
                 type="text" 
