@@ -86,26 +86,26 @@ export default function App() {
     <div className="mesh-bg min-h-screen text-gray-800 font-sans flex flex-col md:flex-row overflow-hidden relative">
       
       {/* DESKTOP SIDEBAR - GLASSMORPHISM */}
-      <aside className="hidden md:flex w-72 glass-panel m-6 mr-0 rounded-3xl flex-col justify-between z-20 shadow-2xl">
+      <aside className="hidden md:flex w-64 glass-panel m-4 mr-0 rounded-3xl flex-col justify-between z-20 shadow-2xl">
         <div>
-          <div className="p-8 pb-4 flex flex-col items-center border-b border-white/20">
-            <div className="w-16 h-16 bg-white/50 backdrop-blur-md rounded-2xl flex items-center justify-center mb-4 shadow-sm border border-white/60">
-              <Heart className="text-teal-600 w-8 h-8" />
+          <div className="p-6 pb-4 flex flex-col items-center border-b border-white/20">
+            <div className="w-12 h-12 bg-white/50 backdrop-blur-md rounded-2xl flex items-center justify-center mb-3 shadow-sm border border-white/60">
+              <Heart className="text-teal-600 w-6 h-6" />
             </div>
-            <h1 className="font-bold text-xl text-center text-gray-900">Village Health Helper</h1>
-            <p className="text-xs text-gray-600 font-medium tracking-wide">Gramin Arogya Sahayak</p>
+            <h1 className="font-bold text-lg text-center text-gray-900">Village Health Helper</h1>
+            <p className="text-[10px] text-gray-600 font-medium tracking-wide">Gramin Arogya Sahayak</p>
           </div>
-          <nav className="p-4 space-y-2 mt-4">
+          <nav className="p-3 space-y-1 mt-2">
             <SidebarItem icon={Home} label="Dashboard" active />
             <SidebarItem icon={Calendar} label="Appointments" />
             <SidebarItem icon={FileText} label="Patient Records" />
             <SidebarItem icon={MessageSquare} label="Consultations" />
           </nav>
         </div>
-        <div className="p-6 border-t border-white/20">
-          <div className="glass-panel p-4 rounded-2xl flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/60 rounded-full flex items-center justify-center border border-white">
-              <User className="text-teal-700 w-6 h-6" />
+        <div className="p-4 border-t border-white/20">
+          <div className="glass-panel p-3 rounded-2xl flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/60 rounded-full flex items-center justify-center border border-white">
+              <User className="text-teal-700 w-5 h-5" />
             </div>
             <div>
               <p className="font-bold text-sm text-gray-900">ASHA Worker</p>
@@ -127,21 +127,21 @@ export default function App() {
       <main className="flex-1 flex flex-col h-screen overflow-y-auto p-4 md:p-6 z-10 scroll-smooth pb-28 md:pb-6 relative">
         
         {/* TOP HEADER */}
-        <header className="glass-panel rounded-3xl p-4 md:px-8 flex justify-between items-center mb-6 shadow-lg">
+        <header className="glass-panel rounded-2xl p-3 md:px-6 flex justify-between items-center mb-4 shadow-sm">
           <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {/* Mobile Title */}
-              <div className="md:hidden flex items-center gap-2 font-bold text-gray-900">
-                 <Heart className="text-teal-600 w-5 h-5" />
+              <div className="md:hidden flex items-center gap-1 font-bold text-gray-900 text-sm">
+                 <Heart className="text-teal-600 w-4 h-4" />
                  VHH
               </div>
 
               {/* Dynamic Connection Indicator */}
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs md:text-sm border ${
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-[10px] md:text-xs border ${
                   isOnline ? 'bg-green-500/20 text-green-800 border-green-500/30' : 'bg-red-500/20 text-red-800 border-red-500/30'
                 }`}
               >
-                {isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
+                {isOnline ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
                 <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
               </div>
             </div>
@@ -152,117 +152,117 @@ export default function App() {
                 <button
                   key={l}
                   onClick={() => setLang(l)}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                  className={`px-2 py-0.5 rounded-full text-[10px] md:text-xs font-bold transition-all ${
                     lang === l ? 'bg-white text-teal-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
                   {l}
                 </button>
               ))}
-              <Languages className="w-4 h-4 text-gray-500 ml-1 mr-2 hidden sm:block" />
+              <Languages className="w-3 h-3 text-gray-500 ml-1 mr-2 hidden sm:block" />
             </div>
           </div>
         </header>
 
         {/* HERO SECTION: PATIENT LOOKUP */}
-        <section className="glass-panel rounded-3xl p-6 md:p-10 mb-6 flex flex-col items-center justify-center text-center shadow-xl">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3 tracking-tight">
+        <section className="glass-panel rounded-3xl p-5 md:p-8 mb-4 flex flex-col items-center justify-center text-center shadow-md">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">
             Who are we treating today?
           </h2>
-          <p className="text-gray-600 mb-6 max-w-lg font-medium">
+          <p className="text-gray-600 mb-4 max-w-md font-medium text-sm">
             Search existing patients via Registration ID / ABHA ID to view records, or add a new patient instantly.
           </p>
           
-          <div className="w-full max-w-2xl flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 bg-white/60 backdrop-blur-xl border border-white/50 rounded-2xl flex items-center p-2 shadow-inner">
-              <Search className="w-6 h-6 text-teal-600 ml-3 mr-2" />
+          <div className="w-full max-w-xl flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 bg-white/60 backdrop-blur-xl border border-white/50 rounded-xl flex items-center p-1.5 shadow-inner">
+              <Search className="w-5 h-5 text-teal-600 ml-3 mr-2" />
               <input 
                 type="text" 
                 placeholder="Enter ABHA ID or Name..." 
-                className="bg-transparent border-none outline-none flex-1 text-lg text-gray-800 p-2 placeholder-gray-500"
+                className="bg-transparent border-none outline-none flex-1 text-base text-gray-800 p-1 placeholder-gray-500"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
               />
             </div>
-            <button className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-8 rounded-2xl shadow-lg shadow-teal-600/30 transition-transform active:scale-95 whitespace-nowrap">
+            <button className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 text-sm rounded-xl shadow-lg shadow-teal-600/30 transition-transform active:scale-95 whitespace-nowrap">
               Search Record
             </button>
           </div>
         </section>
 
         {/* 3 PRIMARY ACTION CARDS (GRID) */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5 relative z-10">
           
           {/* Card 1: Find Medicine */}
-          <button onClick={() => setActivePathway('medicine')} className="glass-panel rounded-3xl p-8 text-left transition-all hover:scale-[1.02] hover:bg-white/50 group cursor-pointer border border-white/60">
-            <div className="w-16 h-16 bg-blue-500/20 text-blue-700 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-500/30 transition-colors">
-              <Pill className="w-8 h-8" />
+          <button onClick={() => setActivePathway('medicine')} className="glass-panel rounded-2xl p-5 md:p-6 text-left transition-all hover:scale-[1.02] hover:bg-white/50 group cursor-pointer border border-white/60">
+            <div className="w-12 h-12 bg-blue-500/20 text-blue-700 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-500/30 transition-colors">
+              <Pill className="w-6 h-6" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Find My Medicine</h3>
-            <p className="text-gray-600 font-medium text-sm">Locate nearby inventory and check real-time stock at PHCs/Sub-Centres.</p>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Find My Medicine</h3>
+            <p className="text-gray-600 font-medium text-xs">Locate nearby inventory and check real-time stock at PHCs/Sub-Centres.</p>
           </button>
 
           {/* Card 2: Smart Guide */}
-          <button onClick={() => setActivePathway('triage')} className="glass-panel rounded-3xl p-8 text-left transition-all hover:scale-[1.02] hover:bg-white/50 group cursor-pointer border border-white/60">
-            <div className="w-16 h-16 bg-purple-500/20 text-purple-700 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-purple-500/30 transition-colors">
-              <Stethoscope className="w-8 h-8" />
+          <button onClick={() => setActivePathway('triage')} className="glass-panel rounded-2xl p-5 md:p-6 text-left transition-all hover:scale-[1.02] hover:bg-white/50 group cursor-pointer border border-white/60">
+            <div className="w-12 h-12 bg-purple-500/20 text-purple-700 rounded-xl flex items-center justify-center mb-4 group-hover:bg-purple-500/30 transition-colors">
+              <Stethoscope className="w-6 h-6" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Smart Guide & Video</h3>
-            <p className="text-gray-600 font-medium text-sm">Triage symptoms & connect with city specialists via teleconsultation.</p>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Smart Guide & Video</h3>
+            <p className="text-gray-600 font-medium text-xs">Triage symptoms & connect with city specialists via teleconsultation.</p>
           </button>
 
           {/* Card 3: RED SOS */}
-          <button onClick={() => setActivePathway('sos')} className="glass-panel-red rounded-3xl p-8 text-left transition-all hover:scale-[1.02] group cursor-pointer relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/4"></div>
-            <div className="w-16 h-16 bg-red-500/30 text-red-700 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-red-500/40 transition-colors border border-red-500/20">
-              <AlertCircle className="w-8 h-8" />
+          <button onClick={() => setActivePathway('sos')} className="glass-panel-red rounded-2xl p-5 md:p-6 text-left transition-all hover:scale-[1.02] group cursor-pointer relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/4"></div>
+            <div className="w-12 h-12 bg-red-500/30 text-red-700 rounded-xl flex items-center justify-center mb-4 group-hover:bg-red-500/40 transition-colors border border-red-500/20">
+              <AlertCircle className="w-6 h-6" />
             </div>
-            <h3 className="text-2xl font-bold text-red-900 mb-2">Red SOS Button</h3>
-            <p className="text-red-800/80 font-medium text-sm">Trigger 108 emergency escalation for critical cases & reserve beds.</p>
+            <h3 className="text-lg font-bold text-red-900 mb-1">Red SOS Button</h3>
+            <p className="text-red-800/80 font-medium text-xs">Trigger 108 emergency escalation for critical cases & reserve beds.</p>
           </button>
 
         </section>
 
         {/* SUPABASE RECORDS LIST */}
-        <section className="glass-panel rounded-3xl p-6 md:p-8 relative z-10 shadow-lg">
-          <div className="flex justify-between items-center mb-6 border-b border-white/30 pb-4">
+        <section className="glass-panel rounded-2xl p-5 md:p-6 relative z-10 shadow-lg">
+          <div className="flex justify-between items-center mb-4 border-b border-white/30 pb-3">
             <div>
-              <h3 className="text-2xl font-bold text-gray-900">Recent Patient Records</h3>
-              <p className="text-sm text-gray-600">Synced via Supabase</p>
+              <h3 className="text-xl font-bold text-gray-900">Recent Patient Records</h3>
+              <p className="text-[10px] text-gray-600">Synced via Supabase</p>
             </div>
-            <button className="bg-white/50 hover:bg-white/80 border border-white/60 text-gray-800 font-bold py-2 px-4 rounded-xl transition text-sm flex items-center gap-2">
-              <UserPlus className="w-4 h-4" /> Add Record
+            <button className="bg-white/50 hover:bg-white/80 border border-white/60 text-gray-800 font-bold py-1.5 px-3 rounded-lg transition text-xs flex items-center gap-1.5">
+              <UserPlus className="w-3.5 h-3.5" /> Add Record
             </button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {loading ? (
-              <p className="text-gray-500 font-medium col-span-full">Loading records from database...</p>
+              <p className="text-gray-500 text-sm font-medium col-span-full">Loading records from database...</p>
             ) : filteredRecords.length === 0 ? (
-              <p className="text-gray-500 font-medium col-span-full">No records found.</p>
+              <p className="text-gray-500 text-sm font-medium col-span-full">No records found.</p>
             ) : (
               filteredRecords.map((record) => (
-                <div key={record.id} className="bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
-                  <div className="flex justify-between items-start mb-4">
+                <div key={record.id} className="bg-white/40 backdrop-blur-md border border-white/60 rounded-xl p-4 shadow-sm hover:shadow-md transition">
+                  <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h4 className="font-bold text-gray-900 text-lg leading-tight">{record.name}</h4>
-                      <p className="text-xs font-semibold text-teal-700 bg-teal-500/10 px-2 py-1 rounded-md inline-block mt-1">ID: {record.register_id}</p>
+                      <h4 className="font-bold text-gray-900 text-base leading-tight">{record.name}</h4>
+                      <p className="text-[10px] font-semibold text-teal-700 bg-teal-500/10 px-2 py-0.5 rounded inline-block mt-1">ID: {record.register_id}</p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm ${getStatusColor(record.status)}`}>
+                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold shadow-sm ${getStatusColor(record.status)}`}>
                       {record.status.toUpperCase()}
                     </span>
                   </div>
                   
-                  <div className="space-y-2 mb-4">
-                    <p className="text-sm text-gray-800"><span className="text-gray-500 font-medium">Problem:</span> {record.problem}</p>
-                    <p className="text-sm text-gray-800"><span className="text-gray-500 font-medium">Meds:</span> {record.medicines}</p>
+                  <div className="space-y-1 mb-3">
+                    <p className="text-xs text-gray-800"><span className="text-gray-500 font-medium">Problem:</span> {record.problem}</p>
+                    <p className="text-xs text-gray-800"><span className="text-gray-500 font-medium">Meds:</span> {record.medicines}</p>
                   </div>
 
-                  <div className="flex gap-2 pt-4 border-t border-white/40">
-                    <button className="flex-1 bg-white/50 hover:bg-white border border-white/50 text-gray-700 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition">
+                  <div className="flex gap-2 pt-3 border-t border-white/40">
+                    <button className="flex-1 bg-white/50 hover:bg-white border border-white/50 text-gray-700 font-bold py-1.5 rounded-lg text-[10px] flex items-center justify-center gap-1 transition">
                       <Send className="w-3 h-3" /> Report
                     </button>
-                    <button className="flex-1 bg-white/50 hover:bg-white border border-white/50 text-gray-700 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition">
+                    <button className="flex-1 bg-white/50 hover:bg-white border border-white/50 text-gray-700 font-bold py-1.5 rounded-lg text-[10px] flex items-center justify-center gap-1 transition">
                       <Activity className="w-3 h-3" /> Status
                     </button>
                   </div>
