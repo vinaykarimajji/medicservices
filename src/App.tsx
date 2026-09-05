@@ -332,13 +332,141 @@ export default function App() {
               </div>
             </section>
           </>
-        ) : (
-          <section className="glass-panel rounded-3xl p-8 flex flex-col items-center justify-center text-center h-[60vh]">
-             <h2 className="text-2xl font-bold text-gray-900 mb-2 capitalize">{activeTab}</h2>
-             <p className="text-gray-600">This section is part of the functional sidebar implementation.</p>
-             <button onClick={() => setActiveTab('dashboard')} className="mt-6 bg-teal-600 text-white px-6 py-2 rounded-xl font-bold shadow hover:bg-teal-700 transition">Return to Dashboard</button>
+        ) : activeTab === 'appointments' ? (
+          <section className="glass-panel rounded-3xl p-5 md:p-8 flex flex-col gap-6 shadow-md">
+            <div className="flex justify-between items-center border-b border-white/30 pb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Hospital Appointments</h2>
+                <p className="text-gray-600 text-sm">Find nearby hospitals and book slots instantly.</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                { name: 'District Hospital, Gadchiroli', distance: '12 km', rating: '4.8', slots: 5 },
+                { name: 'Primary Health Centre, Bhamragad', distance: '2 km', rating: '4.2', slots: 12 },
+                { name: 'City Specialist Clinic', distance: '45 km', rating: '4.9', slots: 2 },
+              ].map((h, i) => (
+                <div key={i} className="bg-white/40 backdrop-blur-md border border-white/60 rounded-xl p-5 shadow-sm flex flex-col gap-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-bold text-gray-900 text-lg leading-tight">{h.name}</h4>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
+                        <span className="flex items-center gap-1"><span className="text-teal-600">📍</span> {h.distance}</span>
+                        <span className="flex items-center gap-1 text-yellow-600 font-bold">★ {h.rating}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white/50 rounded-lg p-3 border border-white/40 flex justify-between items-center">
+                     <span className="text-xs font-bold text-gray-700">Available Today: <span className="text-teal-700">{h.slots} slots</span></span>
+                     <button className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold py-1.5 px-4 rounded-lg shadow transition">Book Slot</button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </section>
-        )}
+        ) : activeTab === 'consultations' ? (
+          <section className="glass-panel rounded-3xl p-5 md:p-8 flex flex-col gap-6 shadow-md">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Video Consultations & First Aid</h2>
+              <p className="text-gray-600 text-sm">Speak to a doctor live, or watch reference videos for minor issues.</p>
+            </div>
+            
+            <div className="bg-purple-600/10 border border-purple-600/20 rounded-2xl p-6 flex flex-col md:flex-row items-center gap-6 justify-between">
+               <div>
+                  <h3 className="text-xl font-bold text-purple-900 mb-2">Live Doctor Consultation</h3>
+                  <p className="text-purple-800/80 text-sm mb-4">For severe or unknown symptoms, connect with a city specialist instantly via high-quality video call.</p>
+                  <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition flex items-center gap-2">
+                    <Video className="w-5 h-5" /> Start Video Call Now
+                  </button>
+               </div>
+               <div className="w-24 h-24 bg-purple-200 rounded-full flex items-center justify-center animate-pulse">
+                  <Video className="w-10 h-10 text-purple-600" />
+               </div>
+            </div>
+
+            <h3 className="font-bold text-gray-900 text-lg mt-4 border-b border-white/30 pb-2">First Aid Reference Videos</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+               {[
+                 { title: 'Snake Bite First Aid', color: 'bg-red-500/10' },
+                 { title: 'Treating High Fever', color: 'bg-orange-500/10' },
+                 { title: 'Dressing a Wound', color: 'bg-blue-500/10' }
+               ].map((v, i) => (
+                 <div key={i} className={`${v.color} backdrop-blur-md border border-white/60 rounded-xl p-4 shadow-sm flex flex-col justify-between aspect-video relative group cursor-pointer overflow-hidden`}>
+                   <div className="absolute inset-0 flex items-center justify-center bg-black/5 group-hover:bg-black/10 transition">
+                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
+                        <span className="text-gray-800 font-bold ml-1">▶</span>
+                      </div>
+                   </div>
+                   <div className="absolute bottom-0 left-0 w-full p-3 bg-gradient-to-t from-black/60 to-transparent">
+                      <h4 className="font-bold text-white text-sm">{v.title}</h4>
+                   </div>
+                 </div>
+               ))}
+            </div>
+          </section>
+        ) : activeTab === 'records' ? (
+          <section className="glass-panel rounded-3xl p-5 md:p-8 flex flex-col gap-6 shadow-md">
+            <div className="flex justify-between items-center border-b border-white/30 pb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">My Health Tracker</h2>
+                <p className="text-gray-600 text-sm">Track your vitals, diet, and medication timings.</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Daily Checklist */}
+              <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-xl p-5 shadow-sm">
+                 <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">📋 Daily Reminders</h3>
+                 <div className="space-y-3">
+                    <label className="flex items-center gap-3 p-3 bg-white/50 rounded-lg cursor-pointer hover:bg-white transition">
+                      <input type="checkbox" className="w-5 h-5 accent-teal-600 rounded" />
+                      <div>
+                        <p className="font-bold text-sm text-gray-800">Morning Tablets (Paracetamol)</p>
+                        <p className="text-[10px] text-gray-500">Scheduled at 08:00 AM</p>
+                      </div>
+                    </label>
+                    <label className="flex items-center gap-3 p-3 bg-white/50 rounded-lg cursor-pointer hover:bg-white transition">
+                      <input type="checkbox" className="w-5 h-5 accent-teal-600 rounded" />
+                      <div>
+                        <p className="font-bold text-sm text-gray-800">Drink Fresh Fruit Juice</p>
+                        <p className="text-[10px] text-gray-500">Scheduled at 11:00 AM</p>
+                      </div>
+                    </label>
+                    <label className="flex items-center gap-3 p-3 bg-white/50 rounded-lg cursor-pointer hover:bg-white transition">
+                      <input type="checkbox" className="w-5 h-5 accent-teal-600 rounded" />
+                      <div>
+                        <p className="font-bold text-sm text-gray-800">Night Tablets (Aspirin)</p>
+                        <p className="text-[10px] text-gray-500">Scheduled at 09:00 PM</p>
+                      </div>
+                    </label>
+                 </div>
+              </div>
+
+              {/* Vitals Tracker */}
+              <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-xl p-5 shadow-sm flex flex-col gap-4">
+                 <h3 className="font-bold text-gray-900 flex items-center gap-2">❤️ Record Vitals</h3>
+                 
+                 <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-red-800 font-bold mb-1">Blood Pressure (BP)</p>
+                      <p className="text-2xl font-black text-red-900">120<span className="text-sm font-medium text-red-700">/80</span></p>
+                    </div>
+                    <button className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-4 rounded-lg shadow">Log New BP</button>
+                 </div>
+
+                 <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-blue-800 font-bold mb-1">Blood Sugar (Fasting)</p>
+                      <p className="text-2xl font-black text-blue-900">95 <span className="text-sm font-medium text-blue-700">mg/dL</span></p>
+                    </div>
+                    <button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 rounded-lg shadow">Log Sugar</button>
+                 </div>
+              </div>
+            </div>
+
+          </section>
+        ) : null}
 
       </main>
 
