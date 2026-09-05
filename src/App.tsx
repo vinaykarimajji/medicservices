@@ -1,575 +1,413 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
-  Wifi, 
-  WifiOff, 
-  Languages, 
-  Stethoscope, 
-  Pill, 
-  AlertCircle, 
-  UserPlus, 
-  Search, 
-  Video, 
-  ClipboardList, 
-  Volume2, 
-  MapPin, 
-  PhoneCall, 
-  Car, 
-  CheckCircle2, 
-  Home, 
-  Users, 
-  FileText 
+  Menu, Bell, Search, Calendar, ChevronRight, 
+  Heart, Pill, FileText, UserPlus, Home, 
+  Clock, Activity, MessageSquare, User,
+  Stethoscope, Send, CheckCircle2, ShieldAlert
 } from 'lucide-react';
+import { supabase } from './supabase';
 
-const translations = {
-  en: {
-    appTitle: "Village Health Helper",
-    subtitle: "Gramin Arogya Sahayak",
-    dashboard: "Dashboard",
-    findMedicine: "Find My Medicine",
-    smartGuide: "Smart Guide & Video Doctor",
-    sosButton: "Red SOS Button",
-    online: "Online",
-    offline: "Offline Mode (Saving locally)",
-    villageName: "Village: Vadgaon",
-    todayVisits: "Today's Visits",
-    patientLookup: "Patient Lookup / Register",
-    searchPlaceholder: "Enter Name or ABHA ID",
-    medicineDesc: "Check nearby stock & directions",
-    triageDesc: "Triage & Teleconsultation",
-    sosDesc: "Emergency Escalation",
-    medicineSelect: "Select Medicine",
-    stockStatus: "Nearby Stock Status",
-    inStock: "In Stock",
-    outOfStock: "Out of Stock",
-    away: "away",
-    symptomSelect: "Select Primary Symptom",
-    mildCough: "Mild Cough",
-    chestPain: "Chest Pain / High Fever",
-    recommendPHC: "Recommend: Treat at PHC",
-    bypassHospital: "Bypass to District Hospital",
-    startVideo: "Start Video Consult",
-    healthDiary: "Digital Health Diary",
-    triggerEmergency: "TRIGGER EMERGENCY 108",
-    ambulanceETA: "Ambulance ETA: 12 mins",
-    bedReserved: "Emergency Bed Reserved at Civil Hospital",
-    scanQR: "Show this QR Pass to Ambulance Driver",
-    playAudioDesc: "Play Audio Instructions",
-    syncing: "Syncing records...",
-    synced: "All records synced!",
-    saveRecord: "Save Patient Record"
-  },
-  mr: {
-    appTitle: "ग्राम आरोग्य सहाय्यक",
-    subtitle: "Village Health Helper",
-    dashboard: "डॅशबोर्ड",
-    findMedicine: "माझे औषध शोधा",
-    smartGuide: "स्मार्ट मार्गदर्शक आणि व्हिडिओ डॉक्टर",
-    sosButton: "लाल SOS बटण (तातडीची मदत)",
-    online: "ऑनलाइन",
-    offline: "ऑफलाइन मोड (स्थानिक जतन करत आहे)",
-    villageName: "गाव: वडगाव",
-    todayVisits: "आजच्या भेटी",
-    patientLookup: "रुग्ण शोधा / नोंदणी करा",
-    searchPlaceholder: "नाव किंवा ABHA आयडी प्रविष्ट करा",
-    medicineDesc: "जवळचा साठा आणि दिशानिर्देश तपासा",
-    triageDesc: "प्राथमिक तपासणी आणि टेलिकन्सल्टेशन",
-    sosDesc: "आणीबाणी वाढवणे",
-    medicineSelect: "औषध निवडा",
-    stockStatus: "जवळचा साठा स्थिती",
-    inStock: "साठ्यात आहे",
-    outOfStock: "साठा संपला आहे",
-    away: "दूर",
-    symptomSelect: "प्राथमिक लक्षण निवडा",
-    mildCough: "सौम्य खोकला",
-    chestPain: "छातीत दुखणे / तीव्र ताप",
-    recommendPHC: "शिफारस: PHC मध्ये उपचार करा",
-    bypassHospital: "जिल्हा रुग्णालयात पाठवा",
-    startVideo: "व्हिडिओ सल्ला सुरू करा",
-    healthDiary: "डिजिटल आरोग्य डायरी",
-    triggerEmergency: "आणीबाणी 108 ट्रिगर करा",
-    ambulanceETA: "रुग्णवाहिका येण्याची वेळ: 12 मिनिटे",
-    bedReserved: "सिव्हिल हॉस्पिटलमध्ये आणीबाणीचा बेड राखून ठेवला आहे",
-    scanQR: "हा QR पास रुग्णवाहिका चालकाला दाखवा",
-    playAudioDesc: "ऑडिओ सूचना ऐका",
-    syncing: "रेकॉर्ड सिंक करत आहे...",
-    synced: "सर्व रेकॉर्ड सिंक केले!",
-    saveRecord: "रुग्ण नोंद जतन करा"
-  },
-  hi: {
-    appTitle: "ग्राम स्वास्थ्य सहायक",
-    subtitle: "Village Health Helper",
-    dashboard: "डैशबोर्ड",
-    findMedicine: "मेरी दवा खोजें",
-    smartGuide: "स्मार्ट गाइड और वीडियो डॉक्टर",
-    sosButton: "लाल SOS बटन (आपातकाल)",
-    online: "ऑनलाइन",
-    offline: "ऑफ़लाइन मोड (स्थानीय रूप से सहेजा जा रहा है)",
-    villageName: "गाँव: वडगाँव",
-    todayVisits: "आज की मुलाकातें",
-    patientLookup: "मरीज़ खोजें / पंजीकरण करें",
-    searchPlaceholder: "नाम या ABHA आईडी दर्ज करें",
-    medicineDesc: "आसपास के स्टॉक और दिशा-निर्देश जांचें",
-    triageDesc: "प्राथमिक जांच और टेलीकंसल्टेशन",
-    sosDesc: "आपातकालीन वृद्धि",
-    medicineSelect: "दवा चुनें",
-    stockStatus: "आसपास का स्टॉक",
-    inStock: "स्टॉक में",
-    outOfStock: "स्टॉक खत्म",
-    away: "दूर",
-    symptomSelect: "प्राथमिक लक्षण चुनें",
-    mildCough: "हल्की खांसी",
-    chestPain: "छाती में दर्द / तेज बुखार",
-    recommendPHC: "सिफारिश: PHC में इलाज करें",
-    bypassHospital: "जिला अस्पताल भेजें",
-    startVideo: "वीडियो परामर्श शुरू करें",
-    healthDiary: "डिजिटल स्वास्थ्य डायरी",
-    triggerEmergency: "आपातकाल 108 ट्रिगर करें",
-    ambulanceETA: "एम्बुलेंस आगमन का समय: 12 मिनट",
-    bedReserved: "सिविल अस्पताल में आपातकालीन बिस्तर आरक्षित",
-    scanQR: "यह QR पास एम्बुलेंस चालक को दिखाएं",
-    playAudioDesc: "ऑडियो निर्देश सुनें",
-    syncing: "रिकॉर्ड सिंक हो रहे हैं...",
-    synced: "सभी रिकॉर्ड सिंक हो गए!",
-    saveRecord: "मरीज़ रिकॉर्ड सहेजें"
-  }
-};
+type RecordStatus = 'cured' | 'waiting' | 'pending';
 
-type Lang = 'en' | 'mr' | 'hi';
-type View = 'dashboard' | 'medicine' | 'triage' | 'sos';
+interface PatientRecord {
+  id: string;
+  register_id: string;
+  name: string;
+  problem: string;
+  medicines: string;
+  status: RecordStatus;
+  created_at: string;
+}
 
 export default function App() {
-  const [lang, setLang] = useState<Lang>('en');
-  const [isOffline, setIsOffline] = useState(false);
-  const [currentView, setCurrentView] = useState<View>('dashboard');
-  const [syncMessage, setSyncMessage] = useState('');
-  
-  const t = translations[lang];
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [records, setRecords] = useState<PatientRecord[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Mock toggle offline mode
-  const toggleOffline = () => {
-    if (isOffline) {
-      // Coming back online
-      setIsOffline(false);
-      setSyncMessage(t.syncing);
-      setTimeout(() => {
-        setSyncMessage(t.synced);
-        setTimeout(() => setSyncMessage(''), 3000);
-      }, 1500);
-    } else {
-      setIsOffline(true);
+  // Form State
+  const [newRegId, setNewRegId] = useState('');
+  const [newName, setNewName] = useState('');
+  const [newProblem, setNewProblem] = useState('');
+
+  useEffect(() => {
+    // Online/Offline listener
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    fetchRecords();
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  const fetchRecords = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('patient_records')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+      if (data) setRecords(data);
+    } catch (err) {
+      console.error("Error fetching records. Make sure the table exists.", err);
+      // Fallback mock data if table doesn't exist yet
+      if (records.length === 0) {
+        setRecords([
+          { id: '1', register_id: 'REG-101', name: 'Ramesh Patil', problem: 'High Fever', medicines: 'Paracetamol', status: 'waiting', created_at: new Date().toISOString() },
+          { id: '2', register_id: 'REG-102', name: 'Sita Devi', problem: 'Severe Headaches', medicines: 'Aspirin', status: 'cured', created_at: new Date().toISOString() },
+          { id: '3', register_id: 'REG-103', name: 'Raju Sharma', problem: 'Snake Bite', medicines: 'Antivenom', status: 'pending', created_at: new Date().toISOString() }
+        ]);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
-  const navItems = [
-    { id: 'dashboard', icon: Home, label: t.dashboard },
-    { id: 'medicine', icon: Pill, label: t.findMedicine },
-    { id: 'triage', icon: Stethoscope, label: t.smartGuide },
-    { id: 'sos', icon: AlertCircle, label: t.sosButton },
-  ];
+  const handleAddRecord = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newRegId || !newName) return;
+
+    const newRecord = {
+      register_id: newRegId,
+      name: newName,
+      problem: newProblem,
+      status: 'waiting' as RecordStatus,
+      medicines: 'Pending Prescription'
+    };
+
+    try {
+      const { data, error } = await supabase
+        .from('patient_records')
+        .insert([newRecord])
+        .select();
+
+      if (error) throw error;
+      if (data) {
+        setRecords([data[0], ...records]);
+      }
+    } catch (err) {
+      console.error("Error inserting record", err);
+      // Fallback update
+      setRecords([{ ...newRecord, id: Date.now().toString(), created_at: new Date().toISOString() }, ...records]);
+    }
+    
+    setShowAddModal(false);
+    setNewRegId('');
+    setNewName('');
+    setNewProblem('');
+  };
+
+  const updateStatus = async (id: string, newStatus: RecordStatus) => {
+    try {
+      const { error } = await supabase
+        .from('patient_records')
+        .update({ status: newStatus })
+        .eq('id', id);
+
+      if (error) throw error;
+      setRecords(records.map(r => r.id === id ? { ...r, status: newStatus } : r));
+    } catch (err) {
+      console.error("Error updating status", err);
+      setRecords(records.map(r => r.id === id ? { ...r, status: newStatus } : r));
+    }
+  };
+
+  const getStatusColor = (status: RecordStatus) => {
+    switch (status) {
+      case 'cured': return 'bg-green-100 text-green-700'; // Done
+      case 'waiting': return 'bg-yellow-100 text-yellow-700'; // Once a week
+      case 'pending': return 'bg-orange-100 text-orange-700'; // Still in hospital
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  };
+
+  const getStatusLabel = (status: RecordStatus) => {
+    switch (status) {
+      case 'cured': return 'Checked (Done)';
+      case 'waiting': return 'Waiting (Weekly)';
+      case 'pending': return 'Pending (Hospital)';
+      default: return status;
+    }
+  };
+
+  const filteredRecords = records.filter(r => 
+    r.register_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="flex h-screen bg-gray-bg overflow-hidden font-sans">
+    <div className="flex h-screen bg-gray-50 md:bg-gray-100 overflow-hidden font-sans">
       
-      {/* SIDEBAR */}
-      <div className="w-24 md:w-64 bg-primary text-white flex flex-col shadow-xl z-10 transition-all duration-300">
-        <div className="p-4 md:p-6 flex flex-col items-center md:items-start border-b border-white/20">
-          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-3">
-            <ClipboardList className="text-primary w-7 h-7" />
-          </div>
-          <h1 className="hidden md:block font-bold text-xl leading-tight">{t.appTitle}</h1>
-          <p className="hidden md:block text-xs opacity-80">{t.subtitle}</p>
-        </div>
-        
-        <div className="flex-1 py-6 flex flex-col gap-2">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setCurrentView(item.id as View)}
-              className={`flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-4 p-4 mx-2 rounded-2xl transition-colors ${
-                currentView === item.id ? 'bg-white text-primary shadow-md' : 'text-white hover:bg-white/10'
-              }`}
-            >
-              <item.icon className="w-7 h-7 md:w-6 md:h-6" />
-              <span className="text-xs md:text-base font-semibold text-center md:text-left">
-                {item.id === 'sos' ? (
-                  <span className={currentView === 'sos' ? 'text-red-500' : 'text-red-200'}>{item.label}</span>
-                ) : item.label}
-              </span>
-            </button>
-          ))}
-        </div>
-        
-        <div className="p-4 border-t border-white/20">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Users className="w-5 h-5 opacity-80" />
-            <span className="hidden md:block font-medium">{t.todayVisits}: 14</span>
-          </div>
-          <div className="hidden md:block text-center text-xs opacity-70">
-            {t.villageName}
-          </div>
-        </div>
-      </div>
-
-      {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col relative h-full overflow-y-auto">
-        
-        {/* HEADER BAR */}
-        <header className="bg-white px-6 py-4 flex items-center justify-between shadow-sm sticky top-0 z-20">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={toggleOffline}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all border-2 ${
-                isOffline ? 'bg-red-50 text-red-600 border-red-200' : 'bg-green-50 text-green-600 border-green-200'
-              }`}
-            >
-              {isOffline ? <WifiOff className="w-5 h-5" /> : <Wifi className="w-5 h-5" />}
-              <span className="hidden sm:inline">{isOffline ? t.offline : t.online}</span>
-            </button>
-            {syncMessage && (
-              <span className="text-sm font-medium text-blue-600 animate-pulse bg-blue-50 px-3 py-1 rounded-full">
-                {syncMessage}
-              </span>
-            )}
-          </div>
-          
-          <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-full">
-            {(['en', 'mr', 'hi'] as Lang[]).map(l => (
-              <button
-                key={l}
-                onClick={() => setLang(l)}
-                className={`px-3 py-1 rounded-full text-sm font-bold uppercase transition-all ${
-                  lang === l ? 'bg-white shadow text-primary' : 'text-gray-500'
-                }`}
-              >
-                {l}
-              </button>
-            ))}
-            <Languages className="w-5 h-5 text-gray-400 ml-2 mr-2" />
-          </div>
-        </header>
-
-        {/* DYNAMIC CONTENT */}
-        <main className="p-4 md:p-8 flex-1">
-          {currentView === 'dashboard' && <DashboardView t={t} setView={setCurrentView} />}
-          {currentView === 'medicine' && <MedicineView t={t} />}
-          {currentView === 'triage' && <TriageView t={t} />}
-          {currentView === 'sos' && <SOSView t={t} />}
-        </main>
-      </div>
-    </div>
-  );
-}
-
-/* =========================================
-   VIEW COMPONENTS
-   ========================================= */
-
-function DashboardView({ t, setView }: { t: any, setView: (v: View) => void }) {
-  return (
-    <div className="max-w-4xl mx-auto space-y-8 fade-in">
-      {/* Patient Lookup Card */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-        <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <UserPlus className="text-primary" /> {t.patientLookup}
-        </h2>
-        <div className="flex gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-6 h-6" />
-            <input 
-              type="text" 
-              placeholder={t.searchPlaceholder}
-              className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-14 pr-4 text-lg focus:ring-2 focus:ring-primary outline-none"
-            />
-          </div>
-          <button className="bg-primary hover:bg-primary/90 text-white px-8 rounded-2xl font-bold text-lg transition-colors">
-            Go
-          </button>
-        </div>
-      </div>
-
-      {/* Action Pathways Grid */}
-      <div className="grid md:grid-cols-3 gap-6">
-        
-        <PathwayCard 
-          icon={Pill}
-          title={t.findMedicine}
-          desc={t.medicineDesc}
-          colorClass="bg-blue-50 text-blue-700 border-blue-200"
-          iconBg="bg-blue-100"
-          onClick={() => setView('medicine')}
-        />
-
-        <PathwayCard 
-          icon={Video}
-          title={t.smartGuide}
-          desc={t.triageDesc}
-          colorClass="bg-purple-50 text-purple-700 border-purple-200"
-          iconBg="bg-purple-100"
-          onClick={() => setView('triage')}
-        />
-
-        <PathwayCard 
-          icon={AlertCircle}
-          title={t.sosButton}
-          desc={t.sosDesc}
-          colorClass="bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100"
-          iconBg="bg-red-100 text-red-600"
-          onClick={() => setView('sos')}
-        />
-        
-      </div>
-    </div>
-  );
-}
-
-function MedicineView({ t }: { t: any }) {
-  const [selectedMed, setSelectedMed] = useState('');
-
-  return (
-    <div className="max-w-3xl mx-auto space-y-6 fade-in">
-      <div className="bg-white rounded-3xl p-6 shadow-sm flex flex-col gap-6">
-        <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
-          <Pill className="text-primary w-8 h-8" />
-          {t.findMedicine}
-        </h2>
-        
+      {/* DESKTOP SIDEBAR */}
+      <div className="hidden md:flex w-64 bg-white border-r border-gray-200 flex-col justify-between z-10">
         <div>
-          <label className="block text-gray-600 font-medium mb-2">{t.medicineSelect}</label>
-          <select 
-            className="w-full bg-gray-50 p-4 rounded-xl border border-gray-200 text-lg font-medium focus:ring-2 focus:ring-primary outline-none"
-            value={selectedMed}
-            onChange={(e) => setSelectedMed(e.target.value)}
-          >
-            <option value="">-- Choose --</option>
-            <option value="paracetamol">Paracetamol 500mg</option>
-            <option value="ors">ORS Packets</option>
-            <option value="amoxicillin">Amoxicillin (Antibiotic)</option>
-            <option value="insulin">Insulin (Cold Chain)</option>
-          </select>
+          <div className="p-6 flex items-center gap-3">
+            <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center">
+              <Heart className="text-white w-5 h-5" />
+            </div>
+            <span className="font-bold text-xl text-gray-800">HealthApp</span>
+          </div>
+          <nav className="px-4 py-6 space-y-2">
+            <SidebarItem icon={Home} label="Home" active />
+            <SidebarItem icon={Calendar} label="Appointments" />
+            <SidebarItem icon={FileText} label="Records" />
+            <SidebarItem icon={MessageSquare} label="Messages" />
+          </nav>
         </div>
+        <div className="p-4 border-t border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+              <User className="text-gray-500 w-6 h-6" />
+            </div>
+            <span className="font-semibold text-sm">Nurse Profile</span>
+          </div>
+          {/* Small online/offline dot as requested */}
+          <div className={`w-3 h-3 rounded-full shadow-sm ${isOnline ? 'bg-green-500' : 'bg-red-500'}`} title={isOnline ? "Online" : "Offline"} />
+        </div>
+      </div>
 
-        {selectedMed && (
-          <div className="mt-4 border-t pt-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">{t.stockStatus}</h3>
-            <div className="space-y-4">
-              
-              <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-                    <CheckCircle2 />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-gray-800 text-lg">PHC Khed</h4>
-                    <p className="text-green-700 font-medium">{t.inStock} (45 strips)</p>
-                  </div>
+      {/* MAIN MOBILE-APP CONTENT AREA */}
+      <div className="flex-1 flex justify-center h-full relative">
+        {/* Mobile App Container constraint for Desktop */}
+        <div className="w-full h-full md:max-w-md bg-white md:shadow-2xl md:border-x border-gray-200 flex flex-col relative overflow-hidden">
+          
+          {/* MOBILE HEADER */}
+          <header className="px-6 pt-12 pb-4 flex items-center justify-between bg-white sticky top-0 z-20">
+            <button className="md:hidden">
+              <Menu className="w-7 h-7 text-gray-700" />
+            </button>
+            <div className="md:hidden flex items-center gap-2 font-bold text-lg">
+               HealthApp
+            </div>
+            <div className="flex items-center gap-4">
+               {/* Small dot for connection status */}
+               <div className={`md:hidden w-3 h-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`} />
+               <div className="relative">
+                 <Bell className="w-6 h-6 text-gray-700" />
+                 <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+               </div>
+            </div>
+          </header>
+
+          <main className="flex-1 overflow-y-auto pb-24 scroll-smooth">
+            
+            {/* GREETING SECTION */}
+            <div className="px-6 py-2 flex justify-between items-center">
+              <div>
+                <p className="text-gray-500 text-sm mb-1">Good Morning,</p>
+                <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+                  Take care of <br/> your <span className="text-blue-600">health.</span>
+                </h1>
+              </div>
+              {/* Doctor Illustration Placeholder */}
+              <div className="w-20 h-24 bg-blue-50 rounded-2xl flex items-end justify-center overflow-hidden border border-blue-100">
+                 <Stethoscope className="w-12 h-12 text-blue-300 mb-2" />
+              </div>
+            </div>
+
+            {/* SEARCH BAR */}
+            <div className="px-6 mt-6">
+              <div className="bg-gray-50 border border-gray-100 rounded-2xl flex items-center p-4">
+                <Search className="w-5 h-5 text-gray-400 mr-3" />
+                <input 
+                  type="text" 
+                  placeholder="Search register ID..." 
+                  className="bg-transparent border-none outline-none flex-1 text-sm text-gray-700"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
+                <div className="w-8 h-8 bg-white rounded-xl shadow-sm flex items-center justify-center">
+                   <Activity className="w-4 h-4 text-blue-600" />
                 </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-1 text-gray-500 mb-1">
-                    <MapPin className="w-4 h-4" /> 4 km {t.away}
-                  </div>
-                  <button className="text-sm bg-white text-primary font-bold px-3 py-1 rounded-lg border border-primary/20">
-                    Route
+              </div>
+            </div>
+
+            {/* BLUE BANNER */}
+            <div className="px-6 mt-8">
+              <div className="bg-blue-600 rounded-3xl p-6 text-white relative overflow-hidden shadow-lg shadow-blue-200">
+                <div className="relative z-10 w-2/3">
+                  <h2 className="text-lg font-bold mb-1">New Patient</h2>
+                  <p className="text-blue-100 text-xs mb-4">Register and record new customer problems instantly.</p>
+                  <button 
+                    onClick={() => setShowAddModal(true)}
+                    className="bg-white text-blue-600 text-xs font-bold px-4 py-2 rounded-full flex items-center gap-2 hover:bg-blue-50 transition"
+                  >
+                    Add Record <ChevronRight className="w-3 h-3" />
                   </button>
                 </div>
+                {/* Decorative background shapes */}
+                <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                  <FileText className="w-16 h-16 text-white/20" />
+                </div>
               </div>
+            </div>
 
-              <div className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center justify-between opacity-75">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-500">
-                    <AlertCircle />
+            {/* SERVICES GRID */}
+            <div className="px-6 mt-8">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-bold text-gray-900">Our Services</h3>
+                <span className="text-xs text-blue-600 font-semibold cursor-pointer">View all &gt;</span>
+              </div>
+              <div className="grid grid-cols-4 gap-3">
+                <ServiceCard icon={UserPlus} label="Add Record" color="text-blue-500" bg="bg-blue-50" onClick={() => setShowAddModal(true)} />
+                <ServiceCard icon={Pill} label="Medication" color="text-indigo-500" bg="bg-indigo-50" />
+                <ServiceCard icon={Send} label="Send Report" color="text-purple-500" bg="bg-purple-50" />
+                <ServiceCard icon={Activity} label="Status" color="text-teal-500" bg="bg-teal-50" />
+              </div>
+            </div>
+
+            {/* PATIENT RECORDS LIST */}
+            <div className="px-6 mt-8 mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-bold text-gray-900">Patient Records</h3>
+                <span className="text-xs text-blue-600 font-semibold cursor-pointer">View all &gt;</span>
+              </div>
+              
+              <div className="space-y-4">
+                {loading && <p className="text-center text-gray-400 text-sm">Loading records...</p>}
+                
+                {!loading && filteredRecords.map((record) => (
+                  <div key={record.id} className="bg-white border border-gray-100 rounded-3xl p-5 shadow-sm">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex gap-3 items-center">
+                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                          <User className="text-gray-500 w-6 h-6" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900">{record.name}</h4>
+                          <p className="text-xs text-gray-500">ID: {record.register_id}</p>
+                        </div>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(record.status)}`}>
+                        {getStatusLabel(record.status)}
+                      </span>
+                    </div>
+                    
+                    <div className="bg-gray-50 rounded-2xl p-3 mb-3">
+                      <p className="text-sm text-gray-700"><span className="font-semibold text-gray-500">Problem:</span> {record.problem}</p>
+                      <p className="text-sm text-gray-700 mt-1"><span className="font-semibold text-gray-500">Medication:</span> {record.medicines}</p>
+                    </div>
+
+                    {/* Action buttons to change status */}
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => updateStatus(record.id, 'cured')}
+                        className={`flex-1 flex justify-center items-center gap-1 py-2 rounded-xl text-xs font-bold transition ${record.status === 'cured' ? 'bg-green-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-green-50'}`}
+                      >
+                        <CheckCircle2 className="w-3 h-3" /> Done
+                      </button>
+                      <button 
+                        onClick={() => updateStatus(record.id, 'waiting')}
+                        className={`flex-1 flex justify-center items-center gap-1 py-2 rounded-xl text-xs font-bold transition ${record.status === 'waiting' ? 'bg-yellow-500 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-yellow-50'}`}
+                      >
+                        <Clock className="w-3 h-3" /> Waiting
+                      </button>
+                      <button 
+                        onClick={() => updateStatus(record.id, 'pending')}
+                        className={`flex-1 flex justify-center items-center gap-1 py-2 rounded-xl text-xs font-bold transition ${record.status === 'pending' ? 'bg-orange-500 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-orange-50'}`}
+                      >
+                        <ShieldAlert className="w-3 h-3" /> Pending
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                {!loading && filteredRecords.length === 0 && (
+                  <p className="text-center text-gray-400 text-sm">No records found.</p>
+                )}
+              </div>
+            </div>
+
+            {/* HEALTH INSIGHTS CARD */}
+            <div className="px-6 mb-10">
+              <h3 className="font-bold text-gray-900 mb-4">Health Insights</h3>
+              <div className="bg-red-50 rounded-3xl p-5 flex items-center justify-between border border-red-100">
+                <div>
+                  <h4 className="font-bold text-gray-900 text-sm mb-1">How to maintain a<br/>healthy heart</h4>
+                  <p className="text-xs text-gray-500">5 min read</p>
+                </div>
+                <Heart className="w-12 h-12 text-red-400 opacity-80" />
+              </div>
+            </div>
+            
+          </main>
+
+          {/* MOBILE BOTTOM NAVIGATION */}
+          <div className="md:hidden absolute bottom-0 w-full bg-white border-t border-gray-100 px-6 py-4 flex justify-between items-center z-30 pb-safe">
+             <NavIcon icon={Home} label="Home" active />
+             <NavIcon icon={Calendar} label="Appointments" />
+             <NavIcon icon={FileText} label="Records" />
+             <NavIcon icon={MessageSquare} label="Messages" />
+             <NavIcon icon={User} label="Profile" />
+          </div>
+
+          {/* ADD RECORD MODAL */}
+          {showAddModal && (
+            <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl animate-fade-in">
+                <h2 className="text-xl font-bold mb-4">New Record</h2>
+                <form onSubmit={handleAddRecord} className="space-y-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 mb-1 block">Register ID</label>
+                    <input required type="text" value={newRegId} onChange={e=>setNewRegId(e.target.value)} className="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-blue-500" placeholder="e.g. REG-004" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-800 text-lg">Sub-Centre Vadgaon</h4>
-                    <p className="text-red-600 font-medium">{t.outOfStock} (0)</p>
+                    <label className="text-xs font-bold text-gray-500 mb-1 block">Patient Name</label>
+                    <input required type="text" value={newName} onChange={e=>setNewName(e.target.value)} className="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-blue-500" placeholder="e.g. Anil Kumar" />
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-1 text-gray-500 mb-1">
-                    <MapPin className="w-4 h-4" /> 1 km {t.away}
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 mb-1 block">Problem / Complaint</label>
+                    <textarea required value={newProblem} onChange={e=>setNewProblem(e.target.value)} className="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-blue-500 h-24" placeholder="Describe symptoms..."></textarea>
                   </div>
-                  <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-md font-bold">Predictive Alert: Stockout</span>
-                </div>
+                  <div className="flex gap-3 pt-2">
+                    <button type="button" onClick={() => setShowAddModal(false)} className="flex-1 py-3 font-bold text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200">Cancel</button>
+                    <button type="submit" className="flex-1 py-3 font-bold text-white bg-blue-600 rounded-xl hover:bg-blue-700">Save</button>
+                  </div>
+                </form>
               </div>
-
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function TriageView({ t }: { t: any }) {
-  const [symptom, setSymptom] = useState('');
-
-  return (
-    <div className="max-w-5xl mx-auto fade-in">
-      <div className="grid md:grid-cols-2 gap-6">
-        
-        {/* Left: Triage Logic */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm flex flex-col gap-6">
-          <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
-            <Stethoscope className="text-primary w-8 h-8" />
-            {t.smartGuide}
-          </h2>
-          
-          <div>
-            <label className="block text-gray-600 font-medium mb-3">{t.symptomSelect}</label>
-            <div className="grid grid-cols-2 gap-3">
-              <button 
-                onClick={() => setSymptom('mild')}
-                className={`p-4 rounded-xl border-2 font-bold transition-all ${
-                  symptom === 'mild' ? 'bg-green-50 border-green-500 text-green-700' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-green-300'
-                }`}
-              >
-                {t.mildCough}
-              </button>
-              <button 
-                onClick={() => setSymptom('severe')}
-                className={`p-4 rounded-xl border-2 font-bold transition-all ${
-                  symptom === 'severe' ? 'bg-red-50 border-red-500 text-red-700' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-red-300'
-                }`}
-              >
-                {t.chestPain}
-              </button>
-            </div>
-          </div>
-
-          {symptom && (
-            <div className={`mt-2 p-4 rounded-2xl border-l-4 ${symptom === 'mild' ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'}`}>
-              <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
-                {symptom === 'mild' ? <CheckCircle2 className="text-green-500" /> : <AlertCircle className="text-red-500" />}
-                {symptom === 'mild' ? t.recommendPHC : t.bypassHospital}
-              </h3>
-              
-              <button className="mt-4 w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2">
-                <Video className="w-5 h-5" />
-                {t.startVideo}
-              </button>
-
-              <button className="mt-3 w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold py-3 rounded-xl flex items-center justify-center gap-2">
-                <Volume2 className="w-5 h-5 text-blue-500" />
-                {t.playAudioDesc}
-              </button>
             </div>
           )}
+
         </div>
-
-        {/* Right: Health Diary Context */}
-        <div className="bg-primary-light rounded-3xl p-6 shadow-sm border border-primary/20">
-          <h2 className="text-xl font-bold text-primary flex items-center gap-3 mb-4">
-            <FileText className="w-6 h-6" />
-            {t.healthDiary}
-          </h2>
-          
-          <div className="bg-white rounded-2xl p-5 shadow-sm space-y-4">
-            <div className="flex items-center gap-4 border-b pb-4">
-              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
-                <UserPlus className="w-8 h-8" />
-              </div>
-              <div>
-                <h3 className="font-bold text-xl">Ramesh Patil</h3>
-                <p className="text-gray-500">Age: 45 | ABHA: 12-3456-7890</p>
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">History</h4>
-              <p className="font-medium text-gray-700">Hypertension, Diabetes Type 2</p>
-            </div>
-            
-            <div>
-              <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">Vitals Today</h4>
-              <div className="flex gap-4">
-                <div className="bg-red-50 text-red-700 p-2 rounded-lg font-bold">BP: 150/95</div>
-                <div className="bg-green-50 text-green-700 p-2 rounded-lg font-bold">Temp: 98.6F</div>
-              </div>
-            </div>
-
-            <button className="w-full bg-primary/10 text-primary font-bold py-3 rounded-xl mt-4">
-              {t.saveRecord}
-            </button>
-          </div>
-        </div>
-
       </div>
     </div>
   );
 }
 
-function SOSView({ t }: { t: any }) {
-  const [triggered, setTriggered] = useState(false);
-
+function SidebarItem({ icon: Icon, label, active = false }: any) {
   return (
-    <div className="max-w-2xl mx-auto text-center fade-in">
-      {!triggered ? (
-        <div className="bg-white rounded-3xl p-10 shadow-sm border-2 border-red-100 flex flex-col items-center gap-8">
-          <div className="w-32 h-32 bg-red-100 rounded-full flex items-center justify-center animate-pulse">
-            <AlertCircle className="w-16 h-16 text-red-600" />
-          </div>
-          <div>
-            <h2 className="text-3xl font-bold text-red-600 mb-2">Emergency Escalation</h2>
-            <p className="text-gray-500 text-lg">For critical cases (Trauma, Snakebite, Maternal)</p>
-          </div>
-          
-          <button 
-            onClick={() => setTriggered(true)}
-            className="w-full py-6 bg-red-600 hover:bg-red-700 text-white text-2xl font-black rounded-3xl shadow-lg shadow-red-200 transition-transform transform active:scale-95"
-          >
-            {t.triggerEmergency}
-          </button>
-        </div>
-      ) : (
-        <div className="bg-white rounded-3xl p-8 shadow-sm border-2 border-red-500 flex flex-col gap-6 text-left">
-          <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
-            <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white">
-              <PhoneCall className="w-6 h-6 animate-pulse" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-red-600">108 Dispatched</h2>
-              <p className="font-medium text-gray-600">Status: En Route</p>
-            </div>
-          </div>
-          
-          <div className="bg-blue-50 p-5 rounded-2xl border border-blue-100 flex items-center gap-4">
-            <Car className="w-10 h-10 text-blue-500" />
-            <div>
-              <h3 className="font-bold text-blue-900 text-xl">{t.ambulanceETA}</h3>
-              <p className="text-blue-700">Driver: Suresh (9876543210)</p>
-            </div>
-          </div>
-
-          <div className="bg-green-50 p-5 rounded-2xl border border-green-100 flex items-center gap-4">
-            <CheckCircle2 className="w-10 h-10 text-green-500" />
-            <div>
-              <h3 className="font-bold text-green-900 text-xl">{t.bedReserved}</h3>
-              <p className="text-green-700">Pre-Arrival Notification Sent</p>
-            </div>
-          </div>
-
-          <div className="mt-4 text-center border-t border-dashed pt-6">
-            <div className="w-40 h-40 bg-gray-200 mx-auto rounded-xl flex items-center justify-center text-gray-400 mb-3">
-              [ QR CODE ]
-            </div>
-            <p className="font-bold text-gray-700">{t.scanQR}</p>
-          </div>
-        </div>
-      )}
+    <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer transition ${active ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'}`}>
+      <Icon className="w-5 h-5" />
+      <span>{label}</span>
     </div>
   );
 }
 
-function PathwayCard({ icon: Icon, title, desc, colorClass, iconBg, onClick }: any) {
+function ServiceCard({ icon: Icon, label, color, bg, onClick }: any) {
   return (
-    <button 
-      onClick={onClick}
-      className={`text-left p-6 rounded-3xl border-2 transition-transform transform hover:-translate-y-1 hover:shadow-lg ${colorClass}`}
-    >
-      <div className={`w-14 h-14 ${iconBg} rounded-2xl flex items-center justify-center mb-6`}>
-        <Icon className="w-8 h-8" />
+    <div onClick={onClick} className="flex flex-col items-center gap-2 cursor-pointer group">
+      <div className={`w-14 h-14 ${bg} rounded-2xl flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm`}>
+        <Icon className={`w-6 h-6 ${color}`} />
       </div>
-      <h3 className="text-xl font-bold mb-2 leading-tight">{title}</h3>
-      <p className="text-sm opacity-90 font-medium">{desc}</p>
-    </button>
+      <span className="text-[10px] font-semibold text-gray-600 text-center leading-tight">{label}</span>
+    </div>
+  );
+}
+
+function NavIcon({ icon: Icon, label, active = false }: any) {
+  return (
+    <div className="flex flex-col items-center gap-1 cursor-pointer">
+      <Icon className={`w-6 h-6 ${active ? 'text-blue-600' : 'text-gray-400'}`} />
+      <span className={`text-[9px] font-semibold ${active ? 'text-blue-600' : 'text-gray-400'}`}>{label}</span>
+    </div>
   );
 }
