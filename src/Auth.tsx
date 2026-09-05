@@ -63,9 +63,15 @@ export default function Auth({ onLogin }: { onLogin: (user: any) => void }) {
         if (error) throw error;
         onLogin(data);
       }
-    } catch (err) {
-      console.error(err);
-      alert('Authentication failed');
+    } catch (err: any) {
+      console.error('Auth Error Details:', err);
+      // Fallback for hackathon demo if DB isn't setup
+      if (err.message?.includes('relation "public.users" does not exist')) {
+        alert('Database not setup! Logging in with a mock profile for demo purposes.');
+        onLogin({ id: 'mock-1', name: name || 'Demo User', role: role, phone: phone });
+      } else {
+        alert(`Authentication failed: ${err.message || JSON.stringify(err)}`);
+      }
     } finally {
       setLoading(false);
     }
