@@ -9,8 +9,41 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--color-gray-bg);
   color: #333;
+}
+
+/* Glassmorphism Design System */
+.mesh-bg {
+  background-color: #d8f3dc; /* soft mint/teal base */
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(173, 232, 244, 0.8) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(202, 240, 248, 0.8) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(144, 224, 239, 0.8) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(72, 202, 228, 0.6) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+}
+
+.glass-panel-red {
+  background: rgba(239, 68, 68, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  box-shadow: 0 8px 32px rgba(239, 68, 68, 0.1);
+}
+
+.glass-panel:hover, .glass-panel-red:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+.glass-panel-red:hover {
+  background: rgba(239, 68, 68, 0.25);
 }
 
 .fade-in {
