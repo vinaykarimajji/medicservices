@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { 
   Search, Calendar, Heart, Pill, FileText, UserPlus, Home, 
-  MessageSquare, User, Wifi, WifiOff, LogOut,
+  MessageSquare, User, Wifi, WifiOff,
   Stethoscope, Languages, AlertCircle, Video, ShoppingBag, CheckCircle
 } from 'lucide-react';
 import { supabase } from './supabase';
-import Auth from './Auth';
 
 type Lang = 'EN' | 'MR' | 'HI';
 type Role = 'nurse' | 'patient';
@@ -22,7 +21,12 @@ interface PatientRecord {
 }
 
 export default function App() {
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<any>({
+    id: 'mock-1',
+    name: 'Ramesh Patil',
+    role: 'patient',
+    phone: '1234567890'
+  });
   const [lang, setLang] = useState<Lang>('EN');
   
   // Derive role directly from currentUser instead of independent state
@@ -141,10 +145,6 @@ export default function App() {
     r.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (!currentUser) {
-    return <Auth onLogin={setCurrentUser} />;
-  }
-
   return (
     <div className="mesh-bg min-h-screen text-gray-800 font-sans flex flex-col md:flex-row overflow-hidden relative">
       
@@ -174,15 +174,15 @@ export default function App() {
           </nav>
         </div>
         <div className="p-4 border-t border-white/20">
-          <div className="glass-panel p-3 rounded-2xl flex items-center gap-3 relative group cursor-pointer hover:bg-white/40 transition" onClick={() => setCurrentUser(null)}>
+          <div className="glass-panel p-3 rounded-2xl flex items-center gap-3 relative group cursor-pointer hover:bg-white/40 transition" onClick={() => setCurrentUser({...currentUser, role: currentUser.role === 'patient' ? 'asha' : 'patient'})}>
             <div className="w-10 h-10 bg-white/60 rounded-full flex items-center justify-center border border-white shrink-0">
               <User className="text-teal-700 w-5 h-5" />
             </div>
             <div className="flex-1 overflow-hidden">
               <p className="font-bold text-sm text-gray-900 truncate">{currentUser.name}</p>
-              <p className="text-[10px] text-gray-600 font-bold capitalize">{currentUser.role} Mode</p>
+              <p className="text-[10px] text-gray-600 font-bold capitalize">{currentUser.role} Mode (Tap to Switch)</p>
             </div>
-            <LogOut className="w-4 h-4 text-gray-400 group-hover:text-red-500 transition-colors shrink-0" />
+            <UserPlus className="w-4 h-4 text-gray-400 group-hover:text-teal-600 transition-colors shrink-0" />
           </div>
         </div>
       </aside>
@@ -192,7 +192,7 @@ export default function App() {
          <NavIcon icon={Home} label="Home" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
          <NavIcon icon={FileText} label="Records" active={activeTab === 'records'} onClick={() => setActiveTab('records')} />
          <NavIcon icon={Video} label="Consult" active={activeTab === 'consultations'} onClick={() => setActiveTab('consultations')} />
-         <NavIcon icon={LogOut} label="Logout" active={false} onClick={() => setCurrentUser(null)} />
+         <NavIcon icon={UserPlus} label="Switch Role" active={false} onClick={() => setCurrentUser({...currentUser, role: currentUser.role === 'patient' ? 'asha' : 'patient'})} />
       </nav>
 
       {/* MAIN CONTENT AREA */}
