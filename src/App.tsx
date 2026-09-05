@@ -49,6 +49,25 @@ export default function App() {
   const [patientProblem, setPatientProblem] = useState('');
   const [patientReqMeds, setPatientReqMeds] = useState('');
 
+  // New States for interactive mock features
+  const [bookedHospitals, setBookedHospitals] = useState<number[]>([]);
+  const [isVideoCallActive, setIsVideoCallActive] = useState(false);
+  const [vitals, setVitals] = useState({ bp: '120/80', sugar: '95' });
+
+  const handleBookSlot = (index: number) => {
+    if (bookedHospitals.includes(index)) return;
+    setBookedHospitals([...bookedHospitals, index]);
+    alert("Appointment Successfully Booked! You will receive an SMS reminder shortly.");
+  };
+
+  const handleLogVitals = (type: 'bp' | 'sugar') => {
+    const newVal = prompt(`Enter new ${type === 'bp' ? 'Blood Pressure' : 'Blood Sugar'}:`);
+    if (newVal) {
+      setVitals(prev => ({ ...prev, [type]: newVal }));
+      alert(`${type === 'bp' ? 'Blood Pressure' : 'Blood Sugar'} updated successfully in your Patient Record!`);
+    }
+  };
+
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -268,12 +287,12 @@ export default function App() {
 
             {/* 3 PRIMARY ACTION CARDS (GRID) */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5 relative z-10">
-              <button onClick={() => setActivePathway('medicine')} className="glass-panel rounded-2xl p-5 md:p-6 text-left transition-all hover:scale-[1.02] hover:bg-white/50 group cursor-pointer border border-white/60">
+              <button onClick={() => alert('Medicine Locator functionality will be integrated in Phase 4. Stay tuned!')} className="glass-panel rounded-2xl p-5 md:p-6 text-left transition-all hover:scale-[1.02] hover:bg-white/50 group cursor-pointer border border-white/60">
                 <div className="w-12 h-12 bg-blue-500/20 text-blue-700 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-500/30 transition-colors"><Pill className="w-6 h-6" /></div>
                 <h3 className="text-lg font-bold text-gray-900 mb-1">Find My Medicine</h3>
                 <p className="text-gray-600 font-medium text-xs">Locate nearby inventory and check real-time stock at PHCs/Sub-Centres.</p>
               </button>
-              <button onClick={() => setActivePathway('triage')} className="glass-panel rounded-2xl p-5 md:p-6 text-left transition-all hover:scale-[1.02] hover:bg-white/50 group cursor-pointer border border-white/60">
+              <button onClick={() => setActiveTab('consultations')} className="glass-panel rounded-2xl p-5 md:p-6 text-left transition-all hover:scale-[1.02] hover:bg-white/50 group cursor-pointer border border-white/60">
                 <div className="w-12 h-12 bg-purple-500/20 text-purple-700 rounded-xl flex items-center justify-center mb-4 group-hover:bg-purple-500/30 transition-colors"><Stethoscope className="w-6 h-6" /></div>
                 <h3 className="text-lg font-bold text-gray-900 mb-1">Smart Guide & Video</h3>
                 <p className="text-gray-600 font-medium text-xs">Triage symptoms & connect with city specialists via teleconsultation.</p>
@@ -368,8 +387,14 @@ export default function App() {
                     </div>
                   </div>
                   <div className="bg-white/50 rounded-lg p-3 border border-white/40 flex justify-between items-center">
-                     <span className="text-xs font-bold text-gray-700">Available Today: <span className="text-teal-700">{h.slots} slots</span></span>
-                     <button className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold py-1.5 px-4 rounded-lg shadow transition">Book Slot</button>
+                     <span className="text-xs font-bold text-gray-700">Available Today: <span className="text-teal-700">{bookedHospitals.includes(i) ? h.slots - 1 : h.slots} slots</span></span>
+                     <button 
+                       onClick={() => handleBookSlot(i)} 
+                       disabled={bookedHospitals.includes(i)} 
+                       className={`${bookedHospitals.includes(i) ? 'bg-gray-400' : 'bg-teal-600 hover:bg-teal-700'} text-white text-xs font-bold py-1.5 px-4 rounded-lg shadow transition`}
+                     >
+                       {bookedHospitals.includes(i) ? '✓ Booked' : 'Book Slot'}
+                     </button>
                   </div>
                 </div>
               ))}
@@ -386,7 +411,7 @@ export default function App() {
                <div>
                   <h3 className="text-xl font-bold text-purple-900 mb-2">Live Doctor Consultation</h3>
                   <p className="text-purple-800/80 text-sm mb-4">For severe or unknown symptoms, connect with a city specialist instantly via high-quality video call.</p>
-                  <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition flex items-center gap-2">
+                  <button onClick={() => setIsVideoCallActive(true)} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition flex items-center gap-2">
                     <Video className="w-5 h-5" /> Start Video Call Now
                   </button>
                </div>
@@ -460,17 +485,17 @@ export default function App() {
                  <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center justify-between">
                     <div>
                       <p className="text-xs text-red-800 font-bold mb-1">Blood Pressure (BP)</p>
-                      <p className="text-2xl font-black text-red-900">120<span className="text-sm font-medium text-red-700">/80</span></p>
+                      <p className="text-2xl font-black text-red-900">{vitals.bp.split('/')[0]}<span className="text-sm font-medium text-red-700">/{vitals.bp.split('/')[1] || ''}</span></p>
                     </div>
-                    <button className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-4 rounded-lg shadow">Log New BP</button>
+                    <button onClick={() => handleLogVitals('bp')} className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-4 rounded-lg shadow">Log New BP</button>
                  </div>
 
                  <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl flex items-center justify-between">
                     <div>
                       <p className="text-xs text-blue-800 font-bold mb-1">Blood Sugar (Fasting)</p>
-                      <p className="text-2xl font-black text-blue-900">95 <span className="text-sm font-medium text-blue-700">mg/dL</span></p>
+                      <p className="text-2xl font-black text-blue-900">{vitals.sugar} <span className="text-sm font-medium text-blue-700">mg/dL</span></p>
                     </div>
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 rounded-lg shadow">Log Sugar</button>
+                    <button onClick={() => handleLogVitals('sugar')} className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 rounded-lg shadow">Log Sugar</button>
                  </div>
               </div>
             </div>
@@ -479,6 +504,26 @@ export default function App() {
         ) : null}
 
       </main>
+
+      {/* VIDEO CALL MODAL */}
+      {isVideoCallActive && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[120] flex items-center justify-center p-4">
+          <div className="bg-gray-900 w-full max-w-4xl h-[80vh] rounded-3xl p-2 shadow-2xl border border-gray-700 flex flex-col relative overflow-hidden">
+            <div className="flex justify-between items-center p-4 text-white">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <span className="font-bold">Live Teleconsultation</span>
+              </div>
+              <button onClick={() => setIsVideoCallActive(false)} className="bg-red-600 hover:bg-red-700 text-white font-bold py-1.5 px-4 rounded-xl transition">End Call</button>
+            </div>
+            <div className="flex-1 bg-black rounded-2xl relative flex items-center justify-center">
+              <Video className="w-16 h-16 text-gray-700 animate-pulse" />
+              <p className="absolute bottom-4 left-4 text-gray-500 text-sm">Waiting for doctor to join...</p>
+              <div className="absolute top-4 right-4 w-32 h-48 bg-gray-800 border-2 border-gray-700 rounded-xl"></div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* NURSE PRESCRIBE MODAL */}
       {prescribeModal && (
