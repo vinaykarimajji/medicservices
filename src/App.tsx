@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { 
   Search, Calendar, Heart, Pill, FileText, UserPlus, Home, 
-  MessageSquare, User, Wifi, WifiOff,
+  MessageSquare, User, Wifi, WifiOff, LogOut,
   Stethoscope, Languages, AlertCircle, Video, ShoppingBag, CheckCircle
 } from 'lucide-react';
 import { supabase } from './supabase';
+import Auth from './Auth';
 
 type Lang = 'EN' | 'MR' | 'HI';
 type Role = 'nurse' | 'patient';
@@ -21,8 +22,12 @@ interface PatientRecord {
 }
 
 export default function App() {
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [lang, setLang] = useState<Lang>('EN');
-  const [role, setRole] = useState<Role>('nurse');
+  
+  // Derive role directly from currentUser instead of independent state
+  const role: Role = currentUser?.role === 'asha' ? 'nurse' : 'patient';
+  
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   
@@ -136,6 +141,10 @@ export default function App() {
     r.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  if (!currentUser) {
+    return <Auth onLogin={setCurrentUser} />;
+  }
+
   return (
     <div className="mesh-bg min-h-screen text-gray-800 font-sans flex flex-col md:flex-row overflow-hidden relative">
       
@@ -154,8 +163,8 @@ export default function App() {
             <div className="w-12 h-12 bg-white/50 backdrop-blur-md rounded-2xl flex items-center justify-center mb-3 shadow-sm border border-white/60">
               <Heart className="text-teal-600 w-6 h-6" />
             </div>
-            <h1 className="font-bold text-lg text-center text-gray-900">Village Health Helper</h1>
-            <p className="text-[10px] text-gray-600 font-medium tracking-wide">Gramin Arogya Sahayak</p>
+            <h1 className="font-bold text-lg text-center text-gray-900">ArogyaLink</h1>
+            <p className="text-[10px] text-gray-600 font-medium tracking-wide">Rural Health Connected</p>
           </div>
           <nav className="p-3 space-y-1 mt-2">
             <SidebarItem icon={Home} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
@@ -165,14 +174,15 @@ export default function App() {
           </nav>
         </div>
         <div className="p-4 border-t border-white/20">
-          <div className="glass-panel p-3 rounded-2xl flex items-center gap-3 relative group cursor-pointer" onClick={() => setRole(role === 'nurse' ? 'patient' : 'nurse')}>
-            <div className="w-10 h-10 bg-white/60 rounded-full flex items-center justify-center border border-white">
+          <div className="glass-panel p-3 rounded-2xl flex items-center gap-3 relative group cursor-pointer hover:bg-white/40 transition" onClick={() => setCurrentUser(null)}>
+            <div className="w-10 h-10 bg-white/60 rounded-full flex items-center justify-center border border-white shrink-0">
               <User className="text-teal-700 w-5 h-5" />
             </div>
-            <div>
-              <p className="font-bold text-sm text-gray-900">{role === 'nurse' ? 'ASHA Worker' : 'Patient Mode'}</p>
-              <p className="text-[10px] text-gray-600 font-bold text-blue-600">Switch Role</p>
+            <div className="flex-1 overflow-hidden">
+              <p className="font-bold text-sm text-gray-900 truncate">{currentUser.name}</p>
+              <p className="text-[10px] text-gray-600 font-bold capitalize">{currentUser.role} Mode</p>
             </div>
+            <LogOut className="w-4 h-4 text-gray-400 group-hover:text-red-500 transition-colors shrink-0" />
           </div>
         </div>
       </aside>
@@ -182,7 +192,7 @@ export default function App() {
          <NavIcon icon={Home} label="Home" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
          <NavIcon icon={FileText} label="Records" active={activeTab === 'records'} onClick={() => setActiveTab('records')} />
          <NavIcon icon={Video} label="Consult" active={activeTab === 'consultations'} onClick={() => setActiveTab('consultations')} />
-         <NavIcon icon={User} label="Role" active={false} onClick={() => setRole(role === 'nurse' ? 'patient' : 'nurse')} />
+         <NavIcon icon={LogOut} label="Logout" active={false} onClick={() => setCurrentUser(null)} />
       </nav>
 
       {/* MAIN CONTENT AREA */}
