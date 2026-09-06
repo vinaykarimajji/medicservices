@@ -58,11 +58,21 @@ export default function App() {
   const [medSearchQuery, setMedSearchQuery] = useState('');
   const [deliveryModal, setDeliveryModal] = useState<any>(null);
   const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [deliveryQuantity, setDeliveryQuantity] = useState(1);
+  const [hasPrescription, setHasPrescription] = useState(false);
 
   const handleDeliverySubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Order Confirmed! ${deliveryModal.medName} will be delivered from ${deliveryModal.pharmacy} to your address: ${deliveryAddress}.`);
+    if (deliveryModal.requiresPrescription && !hasPrescription) {
+      alert("Please confirm you have a valid prescription to order this medicine.");
+      return;
+    }
+    const totalPrice = deliveryModal.price * deliveryQuantity;
+    alert(`Order Confirmed!\n\n${deliveryQuantity}x ${deliveryModal.medName}\nTotal Amount: ₹${totalPrice}\n\nDelivery from: ${deliveryModal.pharmacy}\nTo: ${deliveryAddress}`);
     setDeliveryModal(null);
+    setDeliveryQuantity(1);
+    setHasPrescription(false);
+    setDeliveryAddress('');
   };
 
   const handleBookSlotSubmit = (e: React.FormEvent) => {
@@ -547,7 +557,14 @@ export default function App() {
                     <div className="bg-white/50 rounded-lg p-3 border border-white/40 flex justify-between items-center">
                        <span className={`text-xs font-bold ${shop.stock === 'In Stock (High)' ? 'text-green-700' : shop.stock.includes('Limited') ? 'text-yellow-700' : 'text-red-700'}`}>{shop.stock}</span>
                        <button 
-                         onClick={() => setDeliveryModal({ medName: medSearchQuery, pharmacy: shop.name })}
+                         onClick={() => setDeliveryModal({ 
+                           medName: medSearchQuery, 
+                           pharmacy: shop.name,
+                           price: Math.floor(Math.random() * 150) + 20,
+                           about: `Standard medication for treating symptoms associated with ${medSearchQuery.toLowerCase()}.`,
+                           precautions: 'Take after meals. Do not take with antacids.',
+                           requiresPrescription: shop.type === 'Private Shop'
+                         })}
                          disabled={shop.stock === 'Out of Stock'}
                          className={`${shop.stock === 'Out of Stock' ? 'bg-gray-400' : 'bg-teal-600 hover:bg-teal-700'} text-white text-xs font-bold py-1.5 px-4 rounded-lg shadow transition`}
                        >
@@ -621,11 +638,39 @@ export default function App() {
           <div className="glass-panel bg-white/80 w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-white">
             <h2 className="text-xl font-bold text-gray-900 mb-2">Request Delivery</h2>
             <p className="text-sm text-gray-600 mb-4">You are ordering <strong className="text-teal-700">{deliveryModal.medName}</strong> from <strong className="text-gray-900">{deliveryModal.pharmacy}</strong>.</p>
+            
+            <div className="bg-white/50 border border-teal-100 rounded-xl p-3 mb-4 text-xs">
+               <p className="font-bold text-gray-800 mb-1">About:</p>
+               <p className="text-gray-600 mb-2">{deliveryModal.about}</p>
+               <p className="font-bold text-red-800 mb-1">Precautions:</p>
+               <p className="text-red-700">{deliveryModal.precautions}</p>
+            </div>
+
             <form onSubmit={handleDeliverySubmit} className="flex flex-col gap-3">
-              <textarea required rows={3} placeholder="Enter your full home address or village location..." value={deliveryAddress} onChange={e=>setDeliveryAddress(e.target.value)} className="w-full bg-white/60 border border-white/50 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500 resize-none" />
+              <div className="flex justify-between items-center bg-white/60 p-2.5 rounded-xl border border-white/50">
+                <span className="text-sm font-bold text-gray-700">Price per unit:</span>
+                <span className="text-sm font-black text-teal-700">₹{deliveryModal.price}</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-bold text-gray-700 flex-1">Quantity:</label>
+                <input type="number" min="1" max="10" value={deliveryQuantity} onChange={e=>setDeliveryQuantity(parseInt(e.target.value) || 1)} className="w-20 bg-white/60 border border-white/50 p-2 rounded-xl text-center font-bold text-gray-900 outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+
+              {deliveryModal.requiresPrescription && (
+                <label className="flex items-start gap-2 bg-yellow-50 p-3 rounded-xl border border-yellow-200 cursor-pointer">
+                  <input type="checkbox" checked={hasPrescription} onChange={e=>setHasPrescription(e.target.checked)} className="mt-1" />
+                  <span className="text-xs text-yellow-900 font-medium leading-tight">I confirm I have a valid prescription for this medication. (Will be verified on delivery)</span>
+                </label>
+              )}
+
+              <textarea required rows={2} placeholder="Enter full home address or village location..." value={deliveryAddress} onChange={e=>setDeliveryAddress(e.target.value)} className="w-full bg-white/60 border border-white/50 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500 resize-none mt-1" />
+              
               <div className="flex gap-2 mt-2">
                 <button type="button" onClick={() => setDeliveryModal(null)} className="flex-1 py-2 font-bold text-gray-600 bg-gray-200/50 rounded-xl hover:bg-gray-300/50">Cancel</button>
-                <button type="submit" className="flex-1 py-2 font-bold text-white bg-teal-600 rounded-xl hover:bg-teal-700 shadow">Confirm Order</button>
+                <button type="submit" className="flex-1 py-2 font-bold text-white bg-teal-600 rounded-xl hover:bg-teal-700 shadow flex items-center justify-center gap-1">
+                  Pay ₹{deliveryModal.price * deliveryQuantity}
+                </button>
               </div>
             </form>
           </div>
