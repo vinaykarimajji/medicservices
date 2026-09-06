@@ -64,6 +64,22 @@ export default function App() {
   const toggleChecklist = (id: number) => {
     setChecklist(checklist.map(item => item.id === id ? { ...item, checked: !item.checked } : item));
   };
+
+  const handleAddAlarm = () => {
+    const label = prompt("Enter new alarm or task (e.g. 'Take Vitamin C'):");
+    if (!label) return;
+    const time = prompt("Enter time (e.g. '04:00 PM'):", "04:00 PM");
+    if (!time) return;
+    const typeConfirm = confirm("Is this a medication? (Click OK for Medicine, Cancel for General Alarm)");
+    
+    setChecklist([...checklist, {
+      id: Date.now(),
+      type: typeConfirm ? 'medicine' : 'alarm',
+      time: time,
+      label: label,
+      checked: false
+    }]);
+  };
   const [bookingModal, setBookingModal] = useState<{ index: number, name: string } | null>(null);
   const [bookingDetails, setBookingDetails] = useState({ name: currentUser?.name || '', reason: '', date: new Date().toISOString().split('T')[0], time: 'Morning' });
   const [medSearchQuery, setMedSearchQuery] = useState('');
@@ -517,6 +533,9 @@ export default function App() {
                       </label>
                     ))}
                  </div>
+                 <button onClick={handleAddAlarm} className="mt-4 w-full bg-teal-600/10 hover:bg-teal-600/20 text-teal-800 border border-teal-600/30 font-bold py-2 rounded-xl transition flex justify-center items-center gap-2 text-sm">
+                   <AlertCircle className="w-4 h-4" /> Add New Alarm / Task
+                 </button>
               </div>
 
               {/* Vitals & Health Details */}
