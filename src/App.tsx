@@ -6,7 +6,41 @@ import {
 } from 'lucide-react';
 import { supabase } from './supabase';
 
-type Lang = 'EN' | 'MR' | 'HI';
+type Lang = 'EN' | 'TE' | 'HI';
+
+const t = {
+  EN: {
+    heroTitle: "Who are we treating today?",
+    heroSub: "Search existing patients via ID to view records, or add a new patient instantly.",
+    searchBtn: "Search Record",
+    findMeds: "Find My Medicine",
+    findMedsSub: "Locate nearby inventory and check real-time stock at PHCs/Sub-Centres.",
+    smartGuide: "Smart Guide & Video",
+    smartGuideSub: "Triage symptoms & connect with city specialists via teleconsultation.",
+    recentRec: "Recent Patient Records"
+  },
+  TE: {
+    heroTitle: "ఈ రోజు మనం ఎవరికి చికిత్స చేస్తున్నాము?",
+    heroSub: "రికార్డులను చూడటానికి ID ద్వారా రోగులను శోధించండి.",
+    searchBtn: "శోధించండి",
+    findMeds: "నా మందులను కనుగొనండి",
+    findMedsSub: "సమీప ఫార్మసీలలో మందులను కనుగొనండి.",
+    smartGuide: "వీడియో కన్సల్టేషన్",
+    smartGuideSub: "సిటీ స్పెషలిస్ట్‌లతో వీడియో ద్వారా మాట్లాడండి.",
+    recentRec: "ఇటీవలి రోగుల రికార్డులు"
+  },
+  HI: {
+    heroTitle: "आज हम किसका इलाज कर रहे हैं?",
+    heroSub: "रिकॉर्ड देखने के लिए ID के माध्यम से मरीजों को खोजें।",
+    searchBtn: "रिकॉर्ड खोजें",
+    findMeds: "मेरी दवा खोजें",
+    findMedsSub: "आसपास की फार्मेसी में दवाइयां खोजें।",
+    smartGuide: "वीडियो परामर्श",
+    smartGuideSub: "शहर के विशेषज्ञों से वीडियो के माध्यम से जुड़ें।",
+    recentRec: "हाल के मरीज रिकॉर्ड"
+  }
+};
+
 type RecordStatus = 'pending' | 'prescribed' | 'ordered' | 'cured';
 
 interface PatientRecord {
@@ -273,7 +307,7 @@ export default function App() {
 
             {/* Language Switcher */}
             <div className="flex items-center gap-1 bg-white/30 p-1 rounded-full border border-white/40">
-              {(['EN', 'MR', 'HI'] as Lang[]).map(l => (
+              {(['EN', 'TE', 'HI'] as Lang[]).map(l => (
                 <button
                   key={l}
                   onClick={() => setLang(l)}
@@ -293,14 +327,14 @@ export default function App() {
           <>
             {/* HERO SECTION */}
             <section className="glass-panel rounded-3xl p-5 md:p-8 mb-4 flex flex-col items-center justify-center text-center shadow-md">
-              <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">Who are we treating today?</h2>
-              <p className="text-gray-600 mb-4 max-w-md font-medium text-sm">Search existing patients via ID to view records, or add a new patient instantly.</p>
+              <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">{t[lang].heroTitle}</h2>
+              <p className="text-gray-600 mb-4 max-w-md font-medium text-sm">{t[lang].heroSub}</p>
               <div className="w-full max-w-xl flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 bg-white/60 backdrop-blur-xl border border-white/50 rounded-xl flex items-center p-1.5 shadow-inner">
                   <Search className="w-5 h-5 text-teal-600 ml-3 mr-2" />
                   <input type="text" placeholder="Enter ABHA ID or Name..." className="bg-transparent border-none outline-none flex-1 text-base text-gray-800 p-1 placeholder-gray-500" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                 </div>
-                <button className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 text-sm rounded-xl shadow-lg transition-transform active:scale-95 whitespace-nowrap">Search Record</button>
+                <button className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 text-sm rounded-xl shadow-lg transition-transform active:scale-95 whitespace-nowrap">{t[lang].searchBtn}</button>
               </div>
             </section>
 
@@ -308,13 +342,13 @@ export default function App() {
             <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5 relative z-10">
               <button onClick={() => setActiveTab('medicines')} className="glass-panel rounded-2xl p-5 md:p-6 text-left transition-all hover:scale-[1.02] hover:bg-white/50 group cursor-pointer border border-white/60">
                 <div className="w-12 h-12 bg-blue-500/20 text-blue-700 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-500/30 transition-colors"><Pill className="w-6 h-6" /></div>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">Find My Medicine</h3>
-                <p className="text-gray-600 font-medium text-xs">Locate nearby inventory and check real-time stock at PHCs/Sub-Centres.</p>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">{t[lang].findMeds}</h3>
+                <p className="text-gray-600 font-medium text-xs">{t[lang].findMedsSub}</p>
               </button>
               <button onClick={() => setActiveTab('consultations')} className="glass-panel rounded-2xl p-5 md:p-6 text-left transition-all hover:scale-[1.02] hover:bg-white/50 group cursor-pointer border border-white/60">
                 <div className="w-12 h-12 bg-purple-500/20 text-purple-700 rounded-xl flex items-center justify-center mb-4 group-hover:bg-purple-500/30 transition-colors"><Stethoscope className="w-6 h-6" /></div>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">Smart Guide & Video</h3>
-                <p className="text-gray-600 font-medium text-xs">Triage symptoms & connect with city specialists via teleconsultation.</p>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">{t[lang].smartGuide}</h3>
+                <p className="text-gray-600 font-medium text-xs">{t[lang].smartGuideSub}</p>
               </button>
               <button onClick={() => setActivePathway('sos')} className="glass-panel-red rounded-2xl p-5 md:p-6 text-left transition-all hover:scale-[1.02] group cursor-pointer relative overflow-hidden hidden md:block">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/4"></div>
@@ -328,7 +362,7 @@ export default function App() {
             <section className="glass-panel rounded-2xl p-5 md:p-6 relative z-10 shadow-lg">
               <div className="flex justify-between items-center mb-4 border-b border-white/30 pb-3">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">Recent Patient Records</h3>
+                  <h3 className="text-xl font-bold text-gray-900">{t[lang].recentRec}</h3>
                   <p className="text-[10px] text-gray-600">Synced via Supabase</p>
                 </div>
                 <button onClick={() => setActiveTab('records')} className="bg-white/50 hover:bg-white/80 border border-white/60 text-gray-800 font-bold py-1.5 px-3 rounded-lg transition text-xs flex items-center gap-1.5">
