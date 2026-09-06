@@ -53,11 +53,16 @@ export default function App() {
   const [bookedHospitals, setBookedHospitals] = useState<number[]>([]);
   const [isVideoCallActive, setIsVideoCallActive] = useState(false);
   const [vitals, setVitals] = useState({ bp: '120/80', sugar: '95' });
+  const [bookingModal, setBookingModal] = useState<{ index: number, name: string } | null>(null);
+  const [bookingDetails, setBookingDetails] = useState({ name: currentUser?.name || '', reason: '', time: 'Morning' });
 
-  const handleBookSlot = (index: number) => {
-    if (bookedHospitals.includes(index)) return;
-    setBookedHospitals([...bookedHospitals, index]);
-    alert("Appointment Successfully Booked! You will receive an SMS reminder shortly.");
+  const handleBookSlotSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (bookingModal !== null && !bookedHospitals.includes(bookingModal.index)) {
+      setBookedHospitals([...bookedHospitals, bookingModal.index]);
+      alert(`Appointment Booked for ${bookingDetails.name} at ${bookingModal.name} (${bookingDetails.time}). You will receive an SMS reminder shortly.`);
+      setBookingModal(null);
+    }
   };
 
   const handleLogVitals = (type: 'bp' | 'sugar') => {
@@ -389,7 +394,7 @@ export default function App() {
                   <div className="bg-white/50 rounded-lg p-3 border border-white/40 flex justify-between items-center">
                      <span className="text-xs font-bold text-gray-700">Available Today: <span className="text-teal-700">{bookedHospitals.includes(i) ? h.slots - 1 : h.slots} slots</span></span>
                      <button 
-                       onClick={() => handleBookSlot(i)} 
+                       onClick={() => setBookingModal({ index: i, name: h.name })} 
                        disabled={bookedHospitals.includes(i)} 
                        className={`${bookedHospitals.includes(i) ? 'bg-gray-400' : 'bg-teal-600 hover:bg-teal-700'} text-white text-xs font-bold py-1.5 px-4 rounded-lg shadow transition`}
                      >
@@ -521,6 +526,29 @@ export default function App() {
               <p className="absolute bottom-4 left-4 text-gray-500 text-sm">Waiting for doctor to join...</p>
               <div className="absolute top-4 right-4 w-32 h-48 bg-gray-800 border-2 border-gray-700 rounded-xl"></div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* BOOK SLOT MODAL */}
+      {bookingModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[105] flex items-center justify-center p-4">
+          <div className="glass-panel bg-white/80 w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-white">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Book Appointment</h2>
+            <p className="text-sm text-gray-600 mb-4">Facility: <strong className="text-teal-700">{bookingModal.name}</strong></p>
+            <form onSubmit={handleBookSlotSubmit} className="flex flex-col gap-3">
+              <input required type="text" placeholder="Patient Name" value={bookingDetails.name} onChange={e=>setBookingDetails({...bookingDetails, name: e.target.value})} className="w-full bg-white/60 border border-white/50 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500" />
+              <input required type="text" placeholder="Reason for visit..." value={bookingDetails.reason} onChange={e=>setBookingDetails({...bookingDetails, reason: e.target.value})} className="w-full bg-white/60 border border-white/50 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500" />
+              <select value={bookingDetails.time} onChange={e=>setBookingDetails({...bookingDetails, time: e.target.value})} className="w-full bg-white/60 border border-white/50 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500">
+                <option value="Morning">Morning (9 AM - 12 PM)</option>
+                <option value="Afternoon">Afternoon (1 PM - 4 PM)</option>
+                <option value="Evening">Evening (5 PM - 8 PM)</option>
+              </select>
+              <div className="flex gap-2 mt-2">
+                <button type="button" onClick={() => setBookingModal(null)} className="flex-1 py-2 font-bold text-gray-600 bg-gray-200/50 rounded-xl hover:bg-gray-300/50">Cancel</button>
+                <button type="submit" className="flex-1 py-2 font-bold text-white bg-teal-600 rounded-xl hover:bg-teal-700 shadow">Confirm</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
