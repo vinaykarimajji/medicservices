@@ -75,6 +75,14 @@ export default function App() {
     setDeliveryAddress('');
   };
 
+  const [sosDetails, setSosDetails] = useState({ name: currentUser?.name || '', location: '', reason: 'Accident' });
+
+  const handleSosSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert(`🚨 108 AMBULANCE DISPATCHED 🚨\n\nPatient: ${sosDetails.name}\nLocation: ${sosDetails.location}\nEmergency: ${sosDetails.reason}\n\nAn ambulance is en route and a bed at the nearest District Hospital has been reserved.`);
+    setActivePathway(null);
+  };
+
   const handleBookSlotSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (bookingModal !== null && !bookedHospitals.includes(bookingModal.index)) {
@@ -697,14 +705,38 @@ export default function App() {
       {/* EMERGENCY SOS MODAL */}
       {activePathway === 'sos' && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[110] flex items-center justify-center p-4" onClick={() => setActivePathway(null)}>
-          <div className="bg-red-50 w-full max-w-md rounded-3xl p-8 shadow-2xl border-4 border-red-500 text-center relative" onClick={e => e.stopPropagation()}>
-             <button onClick={() => setActivePathway(null)} className="absolute top-4 right-4 w-8 h-8 bg-red-200 text-red-800 rounded-full font-bold flex items-center justify-center">×</button>
-             <div className="w-20 h-20 bg-red-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
-               <AlertCircle className="w-10 h-10" />
+          <div className="bg-red-50 w-full max-w-md rounded-3xl p-6 shadow-2xl border-4 border-red-500 text-center relative" onClick={e => e.stopPropagation()}>
+             <button onClick={() => setActivePathway(null)} className="absolute top-4 right-4 w-8 h-8 bg-red-200 text-red-800 rounded-full font-bold flex items-center justify-center">✕</button>
+             <div className="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center mx-auto mb-3 animate-bounce shadow-[0_0_15px_rgba(220,38,38,0.5)]">
+               <AlertCircle className="w-8 h-8" />
              </div>
-             <h3 className="text-2xl font-extrabold text-red-700 mb-2">TRIGGER 108 EMERGENCY</h3>
-             <p className="text-red-900/80 mb-6 font-medium text-sm">This will instantly dispatch an ambulance and reserve an emergency bed at the nearest District Hospital.</p>
-             <button className="bg-red-600 hover:bg-red-700 text-white font-black py-4 px-8 w-full rounded-2xl shadow-xl shadow-red-600/30 text-lg transition-transform active:scale-95">CONFIRM SOS DISPATCH</button>
+             <h3 className="text-xl font-extrabold text-red-700 mb-1">TRIGGER 108 EMERGENCY</h3>
+             <p className="text-red-900/80 mb-4 font-medium text-xs">This will instantly dispatch an ambulance and reserve an emergency bed.</p>
+             
+             <form onSubmit={handleSosSubmit} className="flex flex-col gap-3 text-left">
+               <div>
+                 <label className="text-xs font-bold text-red-800 ml-1">Patient Name</label>
+                 <input required type="text" value={sosDetails.name} onChange={e=>setSosDetails({...sosDetails, name: e.target.value})} className="w-full bg-white border border-red-200 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500 mt-1" />
+               </div>
+               <div>
+                 <label className="text-xs font-bold text-red-800 ml-1">Exact Location / Landmark</label>
+                 <textarea required rows={2} placeholder="E.g. Near village square..." value={sosDetails.location} onChange={e=>setSosDetails({...sosDetails, location: e.target.value})} className="w-full bg-white border border-red-200 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500 resize-none mt-1" />
+               </div>
+               <div>
+                 <label className="text-xs font-bold text-red-800 ml-1">Emergency Reason</label>
+                 <select value={sosDetails.reason} onChange={e=>setSosDetails({...sosDetails, reason: e.target.value})} className="w-full bg-white border border-red-200 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500 mt-1">
+                   <option value="Accident / Trauma">Accident / Trauma</option>
+                   <option value="Heart Attack / Chest Pain">Heart Attack / Chest Pain</option>
+                   <option value="Pregnancy Complication">Pregnancy Complication</option>
+                   <option value="Breathing Difficulty">Breathing Difficulty</option>
+                   <option value="Unconscious">Unconscious</option>
+                   <option value="Other">Other</option>
+                 </select>
+               </div>
+               <button type="submit" className="bg-red-600 hover:bg-red-700 text-white font-black py-3 px-8 w-full rounded-2xl shadow-xl shadow-red-600/30 text-lg transition-transform active:scale-95 mt-2">
+                 CONFIRM SOS DISPATCH
+               </button>
+             </form>
           </div>
         </div>
       )}
