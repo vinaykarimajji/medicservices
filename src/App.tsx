@@ -55,6 +55,15 @@ export default function App() {
   const [vitals, setVitals] = useState({ bp: '120/80', sugar: '95' });
   const [bookingModal, setBookingModal] = useState<{ index: number, name: string } | null>(null);
   const [bookingDetails, setBookingDetails] = useState({ name: currentUser?.name || '', reason: '', date: new Date().toISOString().split('T')[0], time: 'Morning' });
+  const [medSearchQuery, setMedSearchQuery] = useState('');
+  const [deliveryModal, setDeliveryModal] = useState<any>(null);
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+
+  const handleDeliverySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert(`Order Confirmed! ${deliveryModal.medName} will be delivered from ${deliveryModal.pharmacy} to your address: ${deliveryAddress}.`);
+    setDeliveryModal(null);
+  };
 
   const handleBookSlotSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -292,7 +301,7 @@ export default function App() {
 
             {/* 3 PRIMARY ACTION CARDS (GRID) */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5 relative z-10">
-              <button onClick={() => alert('Medicine Locator functionality will be integrated in Phase 4. Stay tuned!')} className="glass-panel rounded-2xl p-5 md:p-6 text-left transition-all hover:scale-[1.02] hover:bg-white/50 group cursor-pointer border border-white/60">
+              <button onClick={() => setActiveTab('medicines')} className="glass-panel rounded-2xl p-5 md:p-6 text-left transition-all hover:scale-[1.02] hover:bg-white/50 group cursor-pointer border border-white/60">
                 <div className="w-12 h-12 bg-blue-500/20 text-blue-700 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-500/30 transition-colors"><Pill className="w-6 h-6" /></div>
                 <h3 className="text-lg font-bold text-gray-900 mb-1">Find My Medicine</h3>
                 <p className="text-gray-600 font-medium text-xs">Locate nearby inventory and check real-time stock at PHCs/Sub-Centres.</p>
@@ -506,6 +515,55 @@ export default function App() {
             </div>
 
           </section>
+        ) : activeTab === 'medicines' ? (
+          <section className="glass-panel rounded-3xl p-5 md:p-8 flex flex-col gap-6 shadow-md">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Find My Medicine</h2>
+              <p className="text-gray-600 text-sm">Search for prescribed medicines and request delivery from nearby PHCs or Medical Shops.</p>
+            </div>
+            
+            <div className="bg-white/60 backdrop-blur-xl border border-white/50 rounded-xl flex items-center p-2 shadow-inner">
+              <Search className="w-6 h-6 text-teal-600 ml-3 mr-2" />
+              <input type="text" placeholder="Search for Paracetamol, Insulin, etc..." className="bg-transparent border-none outline-none flex-1 text-lg text-gray-800 p-2 placeholder-gray-500" value={medSearchQuery} onChange={e => setMedSearchQuery(e.target.value)} />
+            </div>
+
+            {medSearchQuery.length > 2 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { name: 'District Hospital Pharmacy', distance: '12 km', stock: 'In Stock (High)', type: 'Government' },
+                  { name: 'Sanjivani Medical Store', distance: '1.5 km', stock: 'Limited Stock', type: 'Private Shop' },
+                  { name: 'Bhamragad PHC', distance: '3 km', stock: 'Out of Stock', type: 'Government' },
+                ].map((shop, i) => (
+                  <div key={i} className={`bg-white/40 backdrop-blur-md border border-white/60 rounded-xl p-5 shadow-sm flex flex-col gap-3 ${shop.stock === 'Out of Stock' ? 'opacity-50' : ''}`}>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-lg leading-tight">{shop.name}</h4>
+                        <div className="flex items-center gap-3 mt-1 text-xs font-bold text-gray-600">
+                          <span className="flex items-center gap-1"><span className="text-teal-600">📍</span> {shop.distance}</span>
+                          <span className="text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">{shop.type}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-white/50 rounded-lg p-3 border border-white/40 flex justify-between items-center">
+                       <span className={`text-xs font-bold ${shop.stock === 'In Stock (High)' ? 'text-green-700' : shop.stock.includes('Limited') ? 'text-yellow-700' : 'text-red-700'}`}>{shop.stock}</span>
+                       <button 
+                         onClick={() => setDeliveryModal({ medName: medSearchQuery, pharmacy: shop.name })}
+                         disabled={shop.stock === 'Out of Stock'}
+                         className={`${shop.stock === 'Out of Stock' ? 'bg-gray-400' : 'bg-teal-600 hover:bg-teal-700'} text-white text-xs font-bold py-1.5 px-4 rounded-lg shadow transition`}
+                       >
+                         Request Delivery
+                       </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10 text-gray-400">
+                <Pill className="w-16 h-16 mb-4 opacity-50 text-teal-600" />
+                <p className="text-lg font-medium">Type a medicine name to check local stock.</p>
+              </div>
+            )}
+          </section>
         ) : null}
 
       </main>
@@ -551,6 +609,23 @@ export default function App() {
               <div className="flex gap-2 mt-2">
                 <button type="button" onClick={() => setBookingModal(null)} className="flex-1 py-2 font-bold text-gray-600 bg-gray-200/50 rounded-xl hover:bg-gray-300/50">Cancel</button>
                 <button type="submit" className="flex-1 py-2 font-bold text-white bg-teal-600 rounded-xl hover:bg-teal-700 shadow">Confirm</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MEDICINE DELIVERY MODAL */}
+      {deliveryModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[105] flex items-center justify-center p-4">
+          <div className="glass-panel bg-white/80 w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-white">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Request Delivery</h2>
+            <p className="text-sm text-gray-600 mb-4">You are ordering <strong className="text-teal-700">{deliveryModal.medName}</strong> from <strong className="text-gray-900">{deliveryModal.pharmacy}</strong>.</p>
+            <form onSubmit={handleDeliverySubmit} className="flex flex-col gap-3">
+              <textarea required rows={3} placeholder="Enter your full home address or village location..." value={deliveryAddress} onChange={e=>setDeliveryAddress(e.target.value)} className="w-full bg-white/60 border border-white/50 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500 resize-none" />
+              <div className="flex gap-2 mt-2">
+                <button type="button" onClick={() => setDeliveryModal(null)} className="flex-1 py-2 font-bold text-gray-600 bg-gray-200/50 rounded-xl hover:bg-gray-300/50">Cancel</button>
+                <button type="submit" className="flex-1 py-2 font-bold text-white bg-teal-600 rounded-xl hover:bg-teal-700 shadow">Confirm Order</button>
               </div>
             </form>
           </div>
