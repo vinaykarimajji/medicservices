@@ -213,9 +213,9 @@ export default function App() {
             </div>
             <div className="flex-1 overflow-hidden">
               <p className="font-bold text-sm text-gray-900 truncate">{currentUser.name}</p>
-              <p className="text-[10px] text-gray-600 font-bold capitalize">{currentUser.role} Mode (Tap to Switch)</p>
+              <p className="text-[10px] text-gray-600 font-bold">My Profile</p>
             </div>
-            <UserPlus className="w-4 h-4 text-gray-400 group-hover:text-teal-600 transition-colors shrink-0" />
+            <User className="w-4 h-4 text-gray-400 group-hover:text-teal-600 transition-colors shrink-0" />
           </div>
         </div>
       </aside>
@@ -225,7 +225,7 @@ export default function App() {
          <NavIcon icon={Home} label="Home" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
          <NavIcon icon={FileText} label="Records" active={activeTab === 'records'} onClick={() => setActiveTab('records')} />
          <NavIcon icon={Video} label="Consult" active={activeTab === 'consultations'} onClick={() => setActiveTab('consultations')} />
-         <NavIcon icon={UserPlus} label="Switch Role" active={false} onClick={() => setCurrentUser({...currentUser, role: currentUser.role === 'patient' ? 'asha' : 'patient'})} />
+         <NavIcon icon={User} label="Profile" active={false} onClick={() => setCurrentUser({...currentUser, role: currentUser.role === 'patient' ? 'asha' : 'patient'})} />
       </nav>
 
       {/* MAIN CONTENT AREA */}
