@@ -7,7 +7,6 @@ import {
 import { supabase } from './supabase';
 
 type Lang = 'EN' | 'MR' | 'HI';
-type Role = 'nurse' | 'patient';
 type RecordStatus = 'pending' | 'prescribed' | 'ordered' | 'cured';
 
 interface PatientRecord {
@@ -29,9 +28,6 @@ export default function App() {
   });
   const [lang, setLang] = useState<Lang>('EN');
   
-  // Derive role directly from currentUser instead of independent state
-  const role: Role = currentUser?.role === 'asha' ? 'nurse' : 'patient';
-  
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   
@@ -43,11 +39,6 @@ export default function App() {
   const [activePathway, setActivePathway] = useState<string | null>(null);
   const [prescribeModal, setPrescribeModal] = useState<PatientRecord | null>(null);
   const [newMeds, setNewMeds] = useState('');
-
-  // Patient Form State
-  const [patientName, setPatientName] = useState('');
-  const [patientProblem, setPatientProblem] = useState('');
-  const [patientReqMeds, setPatientReqMeds] = useState('');
 
   // New States for interactive mock features
   const [bookedHospitals, setBookedHospitals] = useState<number[]>([]);
@@ -172,30 +163,6 @@ export default function App() {
     }
   };
 
-  const handlePatientSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!patientName || !patientProblem) return;
-
-    const newRecord = {
-      register_id: `PAT-${Math.floor(Math.random() * 10000)}`,
-      name: patientName,
-      problem: patientProblem,
-      medicines: patientReqMeds ? `Requested: ${patientReqMeds}` : 'Pending Review',
-      status: 'pending' as RecordStatus,
-    };
-
-    try {
-      const { data, error } = await supabase.from('patient_records').insert([newRecord]).select();
-      if (error) throw error;
-      if (data) setRecords([data[0], ...records]);
-    } catch (err) {
-      setRecords([{ ...newRecord, id: Date.now().toString(), created_at: new Date().toISOString() }, ...records]);
-    }
-    
-    setPatientName(''); setPatientProblem(''); setPatientReqMeds('');
-    alert("Record submitted successfully!");
-  };
-
   const updateRecord = async (id: string, updates: Partial<PatientRecord>) => {
     try {
       const { error } = await supabase.from('patient_records').update(updates).eq('id', id);
@@ -236,7 +203,7 @@ export default function App() {
       {/* GLOBAL FLOATING SOS BUTTON */}
       <button 
         onClick={() => setActivePathway('sos')}
-        className="fixed bottom-20 right-6 md:bottom-10 md:right-10 bg-red-600 text-white p-4 rounded-full shadow-[0_0_30px_rgba(220,38,38,0.6)] z-[100] hover:scale-105 transition-transform flex items-center justify-center border-2 border-white/50 md:hidden"
+        className="fixed bottom-24 right-6 md:bottom-10 md:right-10 bg-red-600 text-white p-4 rounded-full shadow-[0_0_30px_rgba(220,38,38,0.6)] z-[100] hover:scale-105 transition-transform flex items-center justify-center border-2 border-white/50 md:hidden"
       >
          <AlertCircle className="w-8 h-8 animate-pulse" />
       </button>
@@ -272,9 +239,10 @@ export default function App() {
         </div>
       </aside>
 
-      {/* MOBILE BOTTOM NAV - GLASSMORPHISM */}
-      <nav className="md:hidden fixed bottom-0 w-full glass-panel z-50 flex justify-around p-4 rounded-t-3xl border-t border-white/40 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] pb-safe">
+      {/* MOBILE BOTTOM NAV - SOLID OPAQUE */}
+      <nav className="md:hidden fixed bottom-0 w-full bg-[#e8f7f4] z-50 flex justify-around p-3 rounded-t-3xl border-t-2 border-white shadow-[0_-10px_40px_rgba(0,0,0,0.15)] pb-safe">
          <NavIcon icon={Home} label="Home" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
+         <NavIcon icon={Calendar} label="Book" active={activeTab === 'appointments'} onClick={() => setActiveTab('appointments')} />
          <NavIcon icon={FileText} label="Records" active={activeTab === 'records'} onClick={() => setActiveTab('records')} />
          <NavIcon icon={Video} label="Consult" active={activeTab === 'consultations'} onClick={() => setActiveTab('consultations')} />
          <NavIcon icon={User} label="Profile" active={false} onClick={() => setCurrentUser({...currentUser, role: currentUser.role === 'patient' ? 'asha' : 'patient'})} />
@@ -323,33 +291,18 @@ export default function App() {
 
         {activeTab === 'dashboard' ? (
           <>
-            {/* HERO SECTION: PATIENT LOOKUP OR REQUEST */}
-            {role === 'patient' ? (
-              <section className="glass-panel rounded-3xl p-5 md:p-8 mb-4 shadow-md border border-white/60 text-center">
-                <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2">Need Medical Help?</h2>
-                <p className="text-gray-600 mb-4 font-medium text-sm">Submit your symptoms and requested medicines. The village nurse will review and prescribe.</p>
-                <form onSubmit={handlePatientSubmit} className="flex flex-col gap-3 max-w-xl mx-auto">
-                  <input required type="text" placeholder="Your Name" value={patientName} onChange={e=>setPatientName(e.target.value)} className="bg-white/60 border border-white/50 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500" />
-                  <input required type="text" placeholder="Describe your problem..." value={patientProblem} onChange={e=>setPatientProblem(e.target.value)} className="bg-white/60 border border-white/50 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500" />
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <input type="text" placeholder="Medicines needed (Optional)" value={patientReqMeds} onChange={e=>setPatientReqMeds(e.target.value)} className="bg-white/60 border border-white/50 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500 flex-1" />
-                    <button type="submit" className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 px-6 text-sm rounded-xl shadow-lg transition">Submit Request</button>
-                  </div>
-                </form>
-              </section>
-            ) : (
-              <section className="glass-panel rounded-3xl p-5 md:p-8 mb-4 flex flex-col items-center justify-center text-center shadow-md">
-                <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">Who are we treating today?</h2>
-                <p className="text-gray-600 mb-4 max-w-md font-medium text-sm">Search existing patients via ID to view records, or add a new patient instantly.</p>
-                <div className="w-full max-w-xl flex flex-col sm:flex-row gap-3">
-                  <div className="flex-1 bg-white/60 backdrop-blur-xl border border-white/50 rounded-xl flex items-center p-1.5 shadow-inner">
-                    <Search className="w-5 h-5 text-teal-600 ml-3 mr-2" />
-                    <input type="text" placeholder="Enter ABHA ID or Name..." className="bg-transparent border-none outline-none flex-1 text-base text-gray-800 p-1 placeholder-gray-500" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
-                  </div>
-                  <button className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 text-sm rounded-xl shadow-lg transition-transform active:scale-95 whitespace-nowrap">Search Record</button>
+            {/* HERO SECTION */}
+            <section className="glass-panel rounded-3xl p-5 md:p-8 mb-4 flex flex-col items-center justify-center text-center shadow-md">
+              <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">Who are we treating today?</h2>
+              <p className="text-gray-600 mb-4 max-w-md font-medium text-sm">Search existing patients via ID to view records, or add a new patient instantly.</p>
+              <div className="w-full max-w-xl flex flex-col sm:flex-row gap-3">
+                <div className="flex-1 bg-white/60 backdrop-blur-xl border border-white/50 rounded-xl flex items-center p-1.5 shadow-inner">
+                  <Search className="w-5 h-5 text-teal-600 ml-3 mr-2" />
+                  <input type="text" placeholder="Enter ABHA ID or Name..." className="bg-transparent border-none outline-none flex-1 text-base text-gray-800 p-1 placeholder-gray-500" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                 </div>
-              </section>
-            )}
+                <button className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 text-sm rounded-xl shadow-lg transition-transform active:scale-95 whitespace-nowrap">Search Record</button>
+              </div>
+            </section>
 
             {/* 3 PRIMARY ACTION CARDS (GRID) */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5 relative z-10">
@@ -375,14 +328,12 @@ export default function App() {
             <section className="glass-panel rounded-2xl p-5 md:p-6 relative z-10 shadow-lg">
               <div className="flex justify-between items-center mb-4 border-b border-white/30 pb-3">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">{role === 'nurse' ? 'Recent Patient Records' : 'My Health Requests'}</h3>
+                  <h3 className="text-xl font-bold text-gray-900">Recent Patient Records</h3>
                   <p className="text-[10px] text-gray-600">Synced via Supabase</p>
                 </div>
-                {role === 'nurse' && (
-                  <button onClick={() => setActiveTab('records')} className="bg-white/50 hover:bg-white/80 border border-white/60 text-gray-800 font-bold py-1.5 px-3 rounded-lg transition text-xs flex items-center gap-1.5">
-                    <UserPlus className="w-3.5 h-3.5" /> Manage All
-                  </button>
-                )}
+                <button onClick={() => setActiveTab('records')} className="bg-white/50 hover:bg-white/80 border border-white/60 text-gray-800 font-bold py-1.5 px-3 rounded-lg transition text-xs flex items-center gap-1.5">
+                  <UserPlus className="w-3.5 h-3.5" /> Manage All
+                </button>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -408,16 +359,13 @@ export default function App() {
                       </div>
 
                       <div className="flex flex-wrap gap-2 mt-auto">
-                        {role === 'nurse' && record.status === 'pending' && (
+                        {record.status === 'pending' && (
                           <button onClick={() => setPrescribeModal(record)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 transition shadow"><Stethoscope className="w-3 h-3" /> Prescribe</button>
                         )}
-                        {role === 'nurse' && record.status === 'prescribed' && (
-                          <button onClick={() => updateRecord(record.id, { status: 'ordered' })} className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 transition shadow" title="Order for PWD/Old/In-Hospital patients"><ShoppingBag className="w-3 h-3" /> Nurse Order</button>
-                        )}
-                        {role === 'patient' && record.status === 'prescribed' && (
+                        {record.status === 'prescribed' && (
                           <button onClick={() => updateRecord(record.id, { status: 'ordered' })} className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 transition shadow"><ShoppingBag className="w-3 h-3" /> Place Order to Home</button>
                         )}
-                        {role === 'nurse' && record.status !== 'cured' && (
+                        {record.status !== 'cured' && (
                           <button onClick={() => updateRecord(record.id, { status: 'cured' })} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 transition shadow"><CheckCircle className="w-3 h-3" /> Mark Cured</button>
                         )}
                       </div>
