@@ -52,7 +52,18 @@ export default function App() {
   // New States for interactive mock features
   const [bookedHospitals, setBookedHospitals] = useState<number[]>([]);
   const [isVideoCallActive, setIsVideoCallActive] = useState(false);
-  const [vitals, setVitals] = useState({ bp: '120/80', sugar: '95' });
+  const [vitals, setVitals] = useState({ bp: '120/80', sugar: '95', weight: '68', height: '170', healthLevel: 'Stable - Good' });
+  const [checklist, setChecklist] = useState([
+    { id: 1, type: 'medicine', time: '08:00 AM', label: 'Morning Tablets (Paracetamol)', checked: true },
+    { id: 2, type: 'food', time: '09:00 AM', label: 'Breakfast (Oatmeal & Fruits)', checked: true },
+    { id: 3, type: 'alarm', time: '12:00 PM', label: 'Check BP reading', checked: false },
+    { id: 4, type: 'food', time: '01:00 PM', label: 'Lunch (Low Carb Meal)', checked: false },
+    { id: 5, type: 'medicine', time: '09:00 PM', label: 'Night Tablets (Aspirin)', checked: false }
+  ]);
+
+  const toggleChecklist = (id: number) => {
+    setChecklist(checklist.map(item => item.id === id ? { ...item, checked: !item.checked } : item));
+  };
   const [bookingModal, setBookingModal] = useState<{ index: number, name: string } | null>(null);
   const [bookingDetails, setBookingDetails] = useState({ name: currentUser?.name || '', reason: '', date: new Date().toISOString().split('T')[0], time: 'Morning' });
   const [medSearchQuery, setMedSearchQuery] = useState('');
@@ -92,11 +103,18 @@ export default function App() {
     }
   };
 
-  const handleLogVitals = (type: 'bp' | 'sugar') => {
-    const newVal = prompt(`Enter new ${type === 'bp' ? 'Blood Pressure' : 'Blood Sugar'}:`);
+  const handleLogVitals = (type: 'bp' | 'sugar' | 'weight' | 'height' | 'healthLevel') => {
+    const labels = {
+      bp: 'Blood Pressure',
+      sugar: 'Blood Sugar',
+      weight: 'Weight (kg)',
+      height: 'Height (cm)',
+      healthLevel: 'Health Level (e.g. Stable)'
+    };
+    const newVal = prompt(`Enter new ${labels[type]}:`, vitals[type]);
     if (newVal) {
       setVitals(prev => ({ ...prev, [type]: newVal }));
-      alert(`${type === 'bp' ? 'Blood Pressure' : 'Blood Sugar'} updated successfully in your Patient Record!`);
+      alert(`${labels[type]} updated successfully in your Patient Record!`);
     }
   };
 
@@ -476,58 +494,68 @@ export default function App() {
           <section className="glass-panel rounded-3xl p-5 md:p-8 flex flex-col gap-6 shadow-md">
             <div className="flex justify-between items-center border-b border-white/30 pb-4">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">My Health Tracker</h2>
-                <p className="text-gray-600 text-sm">Track your vitals, diet, and medication timings.</p>
+                <h2 className="text-2xl font-bold text-gray-900">Patient Records & Health Tracker</h2>
+                <p className="text-gray-600 text-sm">Manage your daily checklist and record essential health vitals.</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Daily Checklist */}
+              {/* Daily Checklist (To-Do List) */}
               <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-xl p-5 shadow-sm">
-                 <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">📋 Daily Reminders</h3>
+                 <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">📝 Today's To-Do List</h3>
                  <div className="space-y-3">
-                    <label className="flex items-center gap-3 p-3 bg-white/50 rounded-lg cursor-pointer hover:bg-white transition">
-                      <input type="checkbox" className="w-5 h-5 accent-teal-600 rounded" />
-                      <div>
-                        <p className="font-bold text-sm text-gray-800">Morning Tablets (Paracetamol)</p>
-                        <p className="text-[10px] text-gray-500">Scheduled at 08:00 AM</p>
-                      </div>
-                    </label>
-                    <label className="flex items-center gap-3 p-3 bg-white/50 rounded-lg cursor-pointer hover:bg-white transition">
-                      <input type="checkbox" className="w-5 h-5 accent-teal-600 rounded" />
-                      <div>
-                        <p className="font-bold text-sm text-gray-800">Drink Fresh Fruit Juice</p>
-                        <p className="text-[10px] text-gray-500">Scheduled at 11:00 AM</p>
-                      </div>
-                    </label>
-                    <label className="flex items-center gap-3 p-3 bg-white/50 rounded-lg cursor-pointer hover:bg-white transition">
-                      <input type="checkbox" className="w-5 h-5 accent-teal-600 rounded" />
-                      <div>
-                        <p className="font-bold text-sm text-gray-800">Night Tablets (Aspirin)</p>
-                        <p className="text-[10px] text-gray-500">Scheduled at 09:00 PM</p>
-                      </div>
-                    </label>
+                    {checklist.map(item => (
+                      <label key={item.id} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-white transition border ${item.checked ? 'bg-teal-50/50 border-teal-200' : 'bg-white/50 border-white/50'}`}>
+                        <input type="checkbox" checked={item.checked} onChange={() => toggleChecklist(item.id)} className="w-5 h-5 accent-teal-600 rounded cursor-pointer" />
+                        <div className={`flex-1 ${item.checked ? 'opacity-60' : ''}`}>
+                          <p className={`font-bold text-sm ${item.checked ? 'text-teal-900 line-through' : 'text-gray-800'}`}>{item.label}</p>
+                          <p className="text-[10px] text-gray-500 font-medium">{item.time} • {item.type === 'food' ? 'Diet' : item.type === 'medicine' ? 'Medication' : 'Reminder'}</p>
+                        </div>
+                        {item.type === 'alarm' && <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center"><AlertCircle className="w-4 h-4 text-orange-600" /></div>}
+                        {item.type === 'medicine' && <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center"><Pill className="w-4 h-4 text-blue-600" /></div>}
+                        {item.type === 'food' && <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center"><Heart className="w-4 h-4 text-green-600" /></div>}
+                      </label>
+                    ))}
                  </div>
               </div>
 
-              {/* Vitals Tracker */}
+              {/* Vitals & Health Details */}
               <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-xl p-5 shadow-sm flex flex-col gap-4">
-                 <h3 className="font-bold text-gray-900 flex items-center gap-2">❤️ Record Vitals</h3>
+                 <h3 className="font-bold text-gray-900 flex items-center gap-2">📊 Personal Vitals & Details</h3>
                  
-                 <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-red-800 font-bold mb-1">Blood Pressure (BP)</p>
-                      <p className="text-2xl font-black text-red-900">{vitals.bp.split('/')[0]}<span className="text-sm font-medium text-red-700">/{vitals.bp.split('/')[1] || ''}</span></p>
-                    </div>
-                    <button onClick={() => handleLogVitals('bp')} className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-4 rounded-lg shadow">Log New BP</button>
+                 <div className="grid grid-cols-2 gap-3">
+                   {/* BP */}
+                   <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-xl cursor-pointer hover:bg-red-500/20 transition" onClick={() => handleLogVitals('bp')}>
+                      <p className="text-[10px] text-red-800 font-bold mb-1 uppercase tracking-wider">Blood Pressure</p>
+                      <p className="text-xl font-black text-red-900">{vitals.bp.split('/')[0]}<span className="text-sm font-medium text-red-700">/{vitals.bp.split('/')[1] || ''}</span></p>
+                   </div>
+                   
+                   {/* Sugar */}
+                   <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-xl cursor-pointer hover:bg-blue-500/20 transition" onClick={() => handleLogVitals('sugar')}>
+                      <p className="text-[10px] text-blue-800 font-bold mb-1 uppercase tracking-wider">Blood Sugar</p>
+                      <p className="text-xl font-black text-blue-900">{vitals.sugar} <span className="text-sm font-medium text-blue-700">mg/dL</span></p>
+                   </div>
+
+                   {/* Weight */}
+                   <div className="bg-orange-500/10 border border-orange-500/20 p-3 rounded-xl cursor-pointer hover:bg-orange-500/20 transition" onClick={() => handleLogVitals('weight')}>
+                      <p className="text-[10px] text-orange-800 font-bold mb-1 uppercase tracking-wider">Weight</p>
+                      <p className="text-xl font-black text-orange-900">{vitals.weight} <span className="text-sm font-medium text-orange-700">kg</span></p>
+                   </div>
+
+                   {/* Height */}
+                   <div className="bg-purple-500/10 border border-purple-500/20 p-3 rounded-xl cursor-pointer hover:bg-purple-500/20 transition" onClick={() => handleLogVitals('height')}>
+                      <p className="text-[10px] text-purple-800 font-bold mb-1 uppercase tracking-wider">Height</p>
+                      <p className="text-xl font-black text-purple-900">{vitals.height} <span className="text-sm font-medium text-purple-700">cm</span></p>
+                   </div>
                  </div>
 
-                 <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl flex items-center justify-between">
+                 {/* Health Status */}
+                 <div className="bg-teal-500/10 border border-teal-500/20 p-4 rounded-xl mt-1 flex items-center justify-between cursor-pointer hover:bg-teal-500/20 transition" onClick={() => handleLogVitals('healthLevel')}>
                     <div>
-                      <p className="text-xs text-blue-800 font-bold mb-1">Blood Sugar (Fasting)</p>
-                      <p className="text-2xl font-black text-blue-900">{vitals.sugar} <span className="text-sm font-medium text-blue-700">mg/dL</span></p>
+                      <p className="text-[10px] text-teal-800 font-bold mb-1 uppercase tracking-wider">Current Health Level</p>
+                      <p className="text-lg font-black text-teal-900">{vitals.healthLevel}</p>
                     </div>
-                    <button onClick={() => handleLogVitals('sugar')} className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 rounded-lg shadow">Log Sugar</button>
+                    <div className="bg-teal-600 text-white p-2 rounded-full shadow-sm"><Heart className="w-5 h-5" /></div>
                  </div>
               </div>
             </div>
