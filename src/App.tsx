@@ -54,13 +54,13 @@ export default function App() {
   const [isVideoCallActive, setIsVideoCallActive] = useState(false);
   const [vitals, setVitals] = useState({ bp: '120/80', sugar: '95' });
   const [bookingModal, setBookingModal] = useState<{ index: number, name: string } | null>(null);
-  const [bookingDetails, setBookingDetails] = useState({ name: currentUser?.name || '', reason: '', time: 'Morning' });
+  const [bookingDetails, setBookingDetails] = useState({ name: currentUser?.name || '', reason: '', date: new Date().toISOString().split('T')[0], time: 'Morning' });
 
   const handleBookSlotSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (bookingModal !== null && !bookedHospitals.includes(bookingModal.index)) {
       setBookedHospitals([...bookedHospitals, bookingModal.index]);
-      alert(`Appointment Booked for ${bookingDetails.name} at ${bookingModal.name} (${bookingDetails.time}). You will receive an SMS reminder shortly.`);
+      alert(`Appointment Booked for ${bookingDetails.name} at ${bookingModal.name} on ${bookingDetails.date} (${bookingDetails.time}). You will receive an SMS reminder shortly.`);
       setBookingModal(null);
     }
   };
@@ -539,11 +539,15 @@ export default function App() {
             <form onSubmit={handleBookSlotSubmit} className="flex flex-col gap-3">
               <input required type="text" placeholder="Patient Name" value={bookingDetails.name} onChange={e=>setBookingDetails({...bookingDetails, name: e.target.value})} className="w-full bg-white/60 border border-white/50 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500" />
               <input required type="text" placeholder="Reason for visit..." value={bookingDetails.reason} onChange={e=>setBookingDetails({...bookingDetails, reason: e.target.value})} className="w-full bg-white/60 border border-white/50 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500" />
-              <select value={bookingDetails.time} onChange={e=>setBookingDetails({...bookingDetails, time: e.target.value})} className="w-full bg-white/60 border border-white/50 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500">
-                <option value="Morning">Morning (9 AM - 12 PM)</option>
-                <option value="Afternoon">Afternoon (1 PM - 4 PM)</option>
-                <option value="Evening">Evening (5 PM - 8 PM)</option>
-              </select>
+              
+              <div className="flex gap-2">
+                <input required type="date" value={bookingDetails.date} onChange={e=>setBookingDetails({...bookingDetails, date: e.target.value})} className="w-full bg-white/60 border border-white/50 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500 flex-1" />
+                <select value={bookingDetails.time} onChange={e=>setBookingDetails({...bookingDetails, time: e.target.value})} className="w-full bg-white/60 border border-white/50 p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500 flex-1">
+                  <option value="Morning">Morning (9 AM - 12 PM)</option>
+                  <option value="Afternoon">Afternoon (1 PM - 4 PM)</option>
+                  <option value="Evening">Evening (5 PM - 8 PM)</option>
+                </select>
+              </div>
               <div className="flex gap-2 mt-2">
                 <button type="button" onClick={() => setBookingModal(null)} className="flex-1 py-2 font-bold text-gray-600 bg-gray-200/50 rounded-xl hover:bg-gray-300/50">Cancel</button>
                 <button type="submit" className="flex-1 py-2 font-bold text-white bg-teal-600 rounded-xl hover:bg-teal-700 shadow">Confirm</button>
