@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   Search, Calendar, Heart, Pill, FileText, UserPlus, Home, 
-  MessageSquare, User, Wifi, WifiOff,
+  MessageSquare, User, Wifi, WifiOff, Camera, Copy, Download, Save,
   Stethoscope, Languages, AlertCircle, Video, ShoppingBag, CheckCircle
 } from 'lucide-react';
 import { supabase } from './supabase';
@@ -54,7 +54,7 @@ interface PatientRecord {
 }
 
 export default function App() {
-  const [currentUser, setCurrentUser] = useState<any>({
+  const [currentUser] = useState<any>({
     id: 'mock-1',
     name: 'Ramesh Patil',
     role: 'patient',
@@ -260,7 +260,7 @@ export default function App() {
           </nav>
         </div>
         <div className="p-4 border-t border-white/20">
-          <div className="glass-panel p-3 rounded-2xl flex items-center gap-3 relative group cursor-pointer hover:bg-white/40 transition" onClick={() => setCurrentUser({...currentUser, role: currentUser.role === 'patient' ? 'asha' : 'patient'})}>
+          <div className={`p-3 rounded-2xl flex items-center gap-3 relative group cursor-pointer hover:bg-white/40 transition border border-white/60 ${activeTab === 'profile' ? 'bg-white/60 shadow-inner' : 'glass-panel'}`} onClick={() => setActiveTab('profile')}>
             <div className="w-10 h-10 bg-white/60 rounded-full flex items-center justify-center border border-white shrink-0">
               <User className="text-teal-700 w-5 h-5" />
             </div>
@@ -268,7 +268,7 @@ export default function App() {
               <p className="font-bold text-sm text-gray-900 truncate">{currentUser.name}</p>
               <p className="text-[10px] text-gray-600 font-bold">My Profile</p>
             </div>
-            <User className="w-4 h-4 text-gray-400 group-hover:text-teal-600 transition-colors shrink-0" />
+            <User className={`w-4 h-4 shrink-0 transition-colors ${activeTab === 'profile' ? 'text-teal-700' : 'text-gray-400 group-hover:text-teal-600'}`} />
           </div>
         </div>
       </aside>
@@ -279,7 +279,7 @@ export default function App() {
          <NavIcon icon={Calendar} label="Book" active={activeTab === 'appointments'} onClick={() => setActiveTab('appointments')} />
          <NavIcon icon={FileText} label="Records" active={activeTab === 'records'} onClick={() => setActiveTab('records')} />
          <NavIcon icon={Video} label="Consult" active={activeTab === 'consultations'} onClick={() => setActiveTab('consultations')} />
-         <NavIcon icon={User} label="Profile" active={false} onClick={() => setCurrentUser({...currentUser, role: currentUser.role === 'patient' ? 'asha' : 'patient'})} />
+         <NavIcon icon={User} label="Profile" active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} />
       </nav>
 
       {/* MAIN CONTENT AREA */}
@@ -617,6 +617,65 @@ export default function App() {
                 <p className="text-lg font-medium">Type a medicine name to check local stock.</p>
               </div>
             )}
+          </section>
+        ) : activeTab === 'profile' ? (
+          <section className="flex flex-col gap-6">
+            {/* SECTION A: THE IDENTITY HEADER */}
+            <div className="bg-white rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.05)] border border-white/60 relative">
+              
+              <div className="relative mb-4">
+                <div className="w-28 h-28 bg-slate-100 rounded-full flex items-center justify-center border-4 border-teal-50">
+                  <User className="w-12 h-12 text-slate-300" />
+                </div>
+                <div className="absolute bottom-0 right-0 w-8 h-8 bg-teal-600 rounded-full border-2 border-white flex items-center justify-center cursor-pointer hover:bg-teal-700 transition">
+                  <Camera className="w-4 h-4 text-white" />
+                </div>
+              </div>
+              
+              <p className="text-xs font-medium text-slate-500 mb-4 tracking-wide">Tap to upload face only</p>
+              
+              <div className="bg-teal-100 text-teal-800 px-4 py-1.5 rounded-full font-bold text-sm flex items-center gap-2 mb-4 shadow-sm">
+                ID: VHH-9842-X7 <Copy className="w-4 h-4 text-teal-700 cursor-pointer hover:text-teal-900" onClick={() => alert('Patient ID Copied!')} />
+              </div>
+              
+              <h2 className="text-3xl font-bold text-slate-800">{currentUser.name || "Patient Profile"}</h2>
+            </div>
+
+            {/* SECTION B: DEMOGRAPHICS GRID */}
+            <div className="grid grid-cols-2 gap-4">
+               <div className="bg-slate-50 rounded-2xl p-5 flex flex-col items-center justify-center shadow-sm border border-slate-100">
+                  <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Age</p>
+                  <p className="text-2xl font-black text-slate-800">45 <span className="text-sm font-bold text-slate-500">yrs</span></p>
+               </div>
+               
+               <div className="bg-teal-50/50 rounded-2xl p-5 flex flex-col items-center justify-center shadow-sm border border-teal-50">
+                  <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Gender</p>
+                  <div className="flex items-center gap-1.5">
+                    <User className="w-4 h-4 text-teal-600" />
+                    <p className="text-xl font-black text-slate-800">Male</p>
+                  </div>
+               </div>
+
+               <div className="bg-teal-50/50 rounded-2xl p-5 flex flex-col items-center justify-center shadow-sm border border-teal-50">
+                  <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Height</p>
+                  <p className="text-2xl font-black text-slate-800">{vitals.height || "170"} <span className="text-sm font-bold text-slate-500">cm</span></p>
+               </div>
+
+               <div className="bg-slate-50 rounded-2xl p-5 flex flex-col items-center justify-center shadow-sm border border-slate-100">
+                  <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Weight</p>
+                  <p className="text-2xl font-black text-slate-800">{vitals.weight || "68"} <span className="text-sm font-bold text-slate-500">kg</span></p>
+               </div>
+            </div>
+
+            {/* SECTION C: ACTION BUTTONS */}
+            <div className="flex flex-col gap-3 mt-4">
+               <button onClick={() => alert('Profile Saved!')} className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 rounded-full shadow-lg transition flex items-center justify-center gap-2 text-lg">
+                 <Save className="w-5 h-5" /> Save Profile
+               </button>
+               <button onClick={() => alert('Generating PDF...')} className="w-full bg-white hover:bg-teal-50 text-teal-700 border-2 border-teal-600 font-bold py-4 rounded-full shadow-sm transition flex items-center justify-center gap-2 text-lg">
+                 <Download className="w-5 h-5" /> Generate Smart Health Card (PDF)
+               </button>
+            </div>
           </section>
         ) : null}
 
