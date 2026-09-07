@@ -673,7 +673,7 @@ export default function App() {
                <button onClick={() => alert('Profile Saved!')} className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 rounded-full shadow-lg transition flex items-center justify-center gap-2 text-lg">
                  <Save className="w-5 h-5" /> Save Profile
                </button>
-               <button onClick={() => alert('Generating PDF...')} className="w-full bg-white hover:bg-teal-50 text-teal-700 border-2 border-teal-600 font-bold py-4 rounded-full shadow-sm transition flex items-center justify-center gap-2 text-lg">
+               <button onClick={() => window.print()} className="w-full bg-white hover:bg-teal-50 text-teal-700 border-2 border-teal-600 font-bold py-4 rounded-full shadow-sm transition flex items-center justify-center gap-2 text-lg">
                  <Download className="w-5 h-5" /> Generate Smart Health Card (PDF)
                </button>
                <button onClick={() => setCurrentUser(null)} className="w-full text-slate-500 hover:text-red-600 font-bold py-2 transition mt-2">
