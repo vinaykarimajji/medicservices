@@ -185,7 +185,7 @@ export default function App() {
       // Fallback
       if (records.length === 0) {
         setRecords([
-          { id: '1', register_id: 'REG-101', name: 'Ramesh Patil', problem: 'High Fever', medicines: 'Pending Review', status: 'pending', created_at: new Date().toISOString() },
+          { id: '1', register_id: 'VHH-9842-X7', name: 'Ramesh Patil', problem: 'High Fever', medicines: 'Pending Review', status: 'pending', created_at: new Date().toISOString() },
           { id: '2', register_id: 'REG-102', name: 'Sita Devi', problem: 'Severe Headaches', medicines: 'Aspirin 500mg', status: 'prescribed', created_at: new Date().toISOString() },
         ]);
       }
@@ -393,17 +393,19 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-2 mt-auto">
-                        {record.status === 'pending' && (
-                          <button onClick={() => setPrescribeModal(record)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 transition shadow"><Stethoscope className="w-3 h-3" /> Prescribe</button>
-                        )}
-                        {record.status === 'prescribed' && (
-                          <button onClick={() => updateRecord(record.id, { status: 'ordered' })} className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 transition shadow"><ShoppingBag className="w-3 h-3" /> Place Order to Home</button>
-                        )}
-                        {record.status !== 'cured' && (
-                          <button onClick={() => updateRecord(record.id, { status: 'cured' })} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 transition shadow"><CheckCircle className="w-3 h-3" /> Mark Cured</button>
-                        )}
-                      </div>
+                      {currentUser.role === 'asha' && (
+                        <div className="flex flex-wrap gap-2 mt-auto">
+                          {record.status === 'pending' && (
+                            <button onClick={() => setPrescribeModal(record)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 transition shadow"><Stethoscope className="w-3 h-3" /> Prescribe</button>
+                          )}
+                          {record.status === 'prescribed' && (
+                            <button onClick={() => updateRecord(record.id, { status: 'ordered' })} className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 transition shadow"><ShoppingBag className="w-3 h-3" /> Order Meds</button>
+                          )}
+                          {record.status !== 'cured' && (
+                            <button onClick={() => updateRecord(record.id, { status: 'cured' })} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 transition shadow"><CheckCircle className="w-3 h-3" /> Mark Cured</button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))
                 )}
@@ -419,6 +421,29 @@ export default function App() {
               </div>
             </div>
             
+            {bookedHospitals.length > 0 && (
+              <div className="mb-4">
+                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2"><Calendar className="w-5 h-5 text-teal-600"/> My Booked Appointments</h3>
+                <div className="space-y-3">
+                  {bookedHospitals.map((hIndex) => (
+                    <div key={hIndex} className="bg-teal-50 border border-teal-200 rounded-xl p-4 flex justify-between items-center shadow-sm">
+                      <div>
+                        <p className="font-bold text-teal-900">
+                          {hIndex === 0 ? 'District Hospital, Gadchiroli' : hIndex === 1 ? 'Primary Health Centre, Bhamragad' : 'City Specialist Clinic'}
+                        </p>
+                        <p className="text-xs text-teal-700 mt-1 font-medium flex items-center gap-2">
+                          <span className="bg-teal-100 px-2 py-0.5 rounded">ID: APPT-VHH-{Math.floor(Math.random() * 9000) + 1000}</span>
+                          Patient: {currentUser.name}
+                        </p>
+                      </div>
+                      <span className="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full border border-green-200">Confirmed</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <h3 className="font-bold text-gray-900 text-lg border-t border-white/30 pt-4">Available Hospitals</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
                 { name: 'District Hospital, Gadchiroli', distance: '12 km', rating: '4.8', slots: 5 },
