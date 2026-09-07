@@ -53,13 +53,10 @@ interface PatientRecord {
   created_at: string;
 }
 
+import Auth from './Auth';
+
 export default function App() {
-  const [currentUser] = useState<any>({
-    id: 'mock-1',
-    name: 'Ramesh Patil',
-    role: 'patient',
-    phone: '1234567890'
-  });
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [lang, setLang] = useState<Lang>('EN');
   
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -230,6 +227,10 @@ export default function App() {
     r.register_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
     r.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (!currentUser) {
+    return <Auth onLogin={setCurrentUser} />;
+  }
 
   return (
     <div className="mesh-bg min-h-screen text-gray-800 font-sans flex flex-col md:flex-row overflow-hidden relative">
@@ -674,6 +675,9 @@ export default function App() {
                </button>
                <button onClick={() => alert('Generating PDF...')} className="w-full bg-white hover:bg-teal-50 text-teal-700 border-2 border-teal-600 font-bold py-4 rounded-full shadow-sm transition flex items-center justify-center gap-2 text-lg">
                  <Download className="w-5 h-5" /> Generate Smart Health Card (PDF)
+               </button>
+               <button onClick={() => setCurrentUser(null)} className="w-full text-slate-500 hover:text-red-600 font-bold py-2 transition mt-2">
+                 Sign Out
                </button>
             </div>
           </section>
